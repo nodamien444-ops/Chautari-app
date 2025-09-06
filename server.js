@@ -24,9 +24,9 @@ app.get('/messages', (req, res) => {
 
 // Post a new message
 app.post('/messages', (req, res) => {
-  const { text } = req.body;
+  const { user,text } = req.body;
   if (text) {
-    messages.push(text);
+    messages.push({user, text});
     res.status(201).json({ success: true, messages });
   } else {
     res.status(400).json({ success: false, message: 'No text provided' });
