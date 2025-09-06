@@ -5,7 +5,43 @@
   <title>Chautari</title>
 </head>
 <body>
-  <h1>Chautrai</h1>
-  <p>we are live.</p>
+  <h1>Chautari</h1>
+  <div>
+    <input type="text" id="messageInput" placeholder="Leave a message">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+  <h2>Messages:</h2>
+  <ul id="messagesList"></ul>
+
+  <script>
+    async function fetchMessages() {
+      const res = await fetch('/messages');
+      const messages = await res.json();
+      const list = document.getElementById('messagesList');
+      list.innerHTML = '';
+      messages.forEach(msg => {
+        const li = document.createElement('li');
+        li.textContent = msg;
+        list.appendChild(li);
+      });
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const text = input.value;
+      if (!text) return;
+      await fetch('/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      input.value = '';
+      fetchMessages();
+    }
+
+    // Fetch messages every 2 seconds to update the board
+    setInterval(fetchMessages, 2000);
+    fetchMessages(); // Initial load
+  </script>
 </body>
 </html>
