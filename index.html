@@ -3,14 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>Chautari</title>
+  <style>
+    #messagesList {
+      height: 400px;      /* Adjust height as needed */
+      overflow-y: auto;    /* Scrollbar appears when messages overflow */
+      border: 1px solid #ccc;
+      padding: 10px;
+      list-style: none;
+    }
+    #messagesList li {
+      margin-bottom: 5px;
+    }
+  </style>
 </head>
 <body>
   <h1>Chautari</h1>
 
-  <!-- Single chat input section -->
+  <!-- Chat input section -->
   <input id="username" placeholder="Your name">
   <input id="message" placeholder="Type message">
-  <button onclick="sendMessage()">Send</button>
 
   <h2>Messages:</h2>
   <ul id="messagesList"></ul>
@@ -37,17 +48,33 @@
       const res = await fetch('/messages');
       const messages = await res.json();
       const list = document.getElementById('messagesList');
+
+      // Save current scroll position
+      const scrollTop = list.scrollTop;
+      const scrollHeight = list.scrollHeight;
+
+      // Update messages
       list.innerHTML = '';
       messages.forEach(msg => {
         const li = document.createElement('li');
         li.textContent = `${msg.user} sent: ${msg.text}`;
         list.appendChild(li);
       });
+
+      // Preserve scroll position (manual scrolling)
+      list.scrollTop = scrollTop;
     }
 
     // Refresh chat every 2 seconds
     setInterval(fetchMessages, 2000);
     fetchMessages(); // initial load
+
+    // Enter key sends message
+    document.getElementById('message').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
   </script>
 </body>
 </html>
