@@ -43,6 +43,11 @@
       flex: 1;
       padding: 5px;
     }
+
+    li span.username {
+      font-weight: bold;
+      margin-right: 5px;
+    }
   </style>
 </head>
 <body>
@@ -59,6 +64,20 @@
   <script>
     const messagesList = document.getElementById('messagesList');
     const messageInput = document.getElementById('message');
+
+    // Store colors per username
+    const userColors = {};
+
+    function getUsernameColor(user) {
+      if (!userColors[user]) {
+        // HSL color for readability
+        const hue = Math.floor(Math.random() * 360);
+        const saturation = 70; // vibrant
+        const lightness = 40;  // dark enough on white
+        userColors[user] = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+      }
+      return userColors[user];
+    }
 
     async function sendMessage() {
       const user = document.getElementById('username').value || "Anonymous";
@@ -79,9 +98,10 @@
       const res = await fetch('/messages');
       const messages = await res.json();
       messagesList.innerHTML = '';
+
       messages.forEach(msg => {
         const li = document.createElement('li');
-        li.textContent = `${msg.user} sent: ${msg.text}`;
+        li.innerHTML = `<span class="username" style="color:${getUsernameColor(msg.user)}">${msg.user}:</span> ${msg.text}`;
         messagesList.appendChild(li);
       });
     }
