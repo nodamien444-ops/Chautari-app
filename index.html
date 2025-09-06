@@ -48,12 +48,30 @@
       font-weight: bold;
       margin-right: 5px;
     }
+
+    /* New message banner */
+    #newMessageBanner {
+      position: fixed;
+      bottom: 70px; /* just above input box */
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #007bff;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: none; /* hidden by default */
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
   <h1>Chautari</h1>
 
   <ul id="messagesList"></ul>
+
+  <!-- New message banner -->
+  <div id="newMessageBanner" onclick="scrollToBottom()">New message ↓</div>
 
   <div id="inputContainer">
     <input id="username" placeholder="Your name">
@@ -64,19 +82,18 @@
   <script>
     const messagesList = document.getElementById('messagesList');
     const messageInput = document.getElementById('message');
+    const newMessageBanner = document.getElementById('newMessageBanner');
 
     // Store colors per username
     const userColors = {};
 
-    function getUsernameColor(user) {
-      if (!userColors[user]) {
-        // HSL color for readability
-        const hue = Math.floor(Math.random() * 360);
-        const saturation = 70; // vibrant
-        const lightness = 40;  // dark enough on white
-        userColors[user] = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    function getRandomColor() {
+      const letters = '0123456789ABCDEF';
+      let color = '#';
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
       }
-      return userColors[user];
+      return color;
     }
 
     async function sendMessage() {
@@ -95,15 +112,36 @@
     }
 
     async function fetchMessages() {
+      // Check if user is at bottom before refresh
+      const isAtBottom =
+        messagesList.scrollHeight - messagesList.scrollTop <= messagesList.clientHeight + 5;
+
       const res = await fetch('/messages');
       const messages = await res.json();
       messagesList.innerHTML = '';
 
       messages.forEach(msg => {
+        // Assign a color if new user
+        if (!userColors[msg.user]) {
+          userColors[msg.user] = getRandomColor();
+        }
+
         const li = document.createElement('li');
-        li.innerHTML = `<span class="username" style="color:${getUsernameColor(msg.user)}">${msg.user}:</span> ${msg.text}`;
+        li.innerHTML = `<span class="username" style="color:${userColors[msg.user]}">${msg.user}:</span> ${msg.text}`;
         messagesList.appendChild(li);
       });
+
+      if (isAtBottom) {
+        scrollToBottom();
+        newMessageBanner.style.display = "none";
+      } else {
+        newMessageBanner.style.display = "block";
+      }
+    }
+
+    function scrollToBottom() {
+      messagesList.scrollTop = messagesList.scrollHeight;
+      newMessageBanner.style.display = "none";
     }
 
     // Refresh messages every 2 seconds
