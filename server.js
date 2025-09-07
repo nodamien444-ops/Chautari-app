@@ -6,6 +6,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+// Serve all static files from "public" folder
 app.use(express.static("public"));
 
 io.on("connection", (socket) => {
@@ -13,7 +14,6 @@ io.on("connection", (socket) => {
     socket.username = username;
     socket.join(room);
 
-    // Notify the room
     io.to(room).emit("chatMessage", {
       user: "System",
       text: `${username} joined ${room}`,

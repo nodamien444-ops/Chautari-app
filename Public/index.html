@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chautari</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+    }
+
+    #chatRooms {
+      width: 60px;
+      background: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 0;
+      border-right: 1px solid #ccc;
+      overflow-y: auto;
+    }
+
+    .roomBubble {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 5px 0;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+      user-select: none;
+    }
+
+    #mainChat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    #messagesList {
+      flex: 1;
+      padding: 10px;
+      margin: 0;
+      list-style: none;
+      overflow-y: auto;
+      margin-bottom: 60px;
+    }
+
+    #inputContainer {
+      position: fixed;
+      bottom: 0;
+      left: 60px;
+      right: 0;
+      display: flex;
+      padding: 10px;
+      gap: 5px;
+      background-color: #f0f0f0;
+      border-top: 1px solid #ccc;
+    }
+
+    #inputContainer input {
+      flex: 1;
+      padding: 5px;
+    }
+
+    li span.username {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+
+    .newMessageNotice {
+      background: #ffeb3b;
+      color: black;
+      text-align: center;
+      font-weight: bold;
+      padding: 2px 0;
+      margin-bottom: 5px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="chatRooms">
+    <div class="roomBubble" data-room="public">C</div>
+  </div>
+
+  <div id="mainChat">
+    <ul id="messagesList"></ul>
+    <div class="newMessageNotice" id="newMessageNotice">New messages below</div>
+  </div>
+
+  <div id="inputContainer">
+    <input id="username" placeholder="Your name">
+    <input id="message" placeholder="Type message">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const messagesList = document.getElementById('messagesList');
+    const messageInput = document.getElementById('message');
+    const usernameInput = document.getElementById('username');
+    const chatRoomsDiv = document.getElementById('chatRooms');
+    const newMessageNotice = document.getElementById('newMessageNotice');
+
+    let currentRoom = "public";
+    const userColors = {};
+
+    // Join a room
+    function joinRoom(room) {
+      currentRoom = room;
+      messagesList.innerHTML = '';
+      socket.emit('joinRoom', { username: usernameInput.value || "Anonymous", room });
+    }
+
+    // Handle room bubble clicks
+    chatRoomsDiv.addEventListener('click', e => {
+      if(e.target.classList.contains('roomBubble')) {
+        joinRoom(e.target.dataset.room);
+      }
+    });
+
+    function getRandomColor() {
+      const letters = '0123456789ABCDEF';
+      let color = '#';
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+    function addMessage(msg) {
+      if (!userColors[msg.user]) userColors[msg.user] = getRandomColor();
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="username" style="color:${userColors[msg.user]}">${msg.user}:</span> ${msg.text}`;
+      messagesList.appendChild(li);
+    }
+
+    let atBottom = true;
+    messagesList.addEventListener('scroll', () => {
+      const threshold = 20;
+      atBottom = messagesList.scrollTop + messagesList.clientHeight >= messagesList.scrollHeight - threshold;
+      if(atBottom) newMessageNotice.style.display = 'none';
+    });
+
+    socket.on('chatMessage', msg => {
+      if(msg.room === currentRoom) {
+        addMessage(msg);
+        if(atBottom) messagesList.scrollTop = messagesList.scrollHeight;
+        else newMessageNotice.style.display = 'block';
+      } else {
+        // Create bubble if not exist for new room
+        if(!document.querySelector(`.roomBubble[data-room="${msg.room}"]`)) {
+          const bubble = document.createElement('div');
+          bubble.classList.add('roomBubble');
+          bubble.dataset.room = msg.room;
+          bubble.textContent = msg.user[0].toUpperCase();
+          bubble.style.background = getRandomColor();
+          chatRoomsDiv.appendChild(bubble);
+        }
+      }
+    });
+
+    async function sendMessage() {
+      const user = usernameInput.value || "Anonymous";
+      const text = messageInput.value;
+      if(!text) return;
+      socket.emit('chatMessage', { room: currentRoom, text });
+      messageInput.value = '';
+    }
+
+    messageInput.addEventListener('keypress', e => {
+      if(e.key === 'Enter') sendMessage();
+    });
+
+    // Auto join public chat on load
+    joinRoom('public');
+  </script>
+</body>
+</html>
