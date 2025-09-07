@@ -1,915 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chautari - Chat Rooms</title>
-<style>
-:root {
-  --primary-color: #4a6fa5;
-  --secondary-color: #6e9887;
-  --background-color: #f8f9fa;
-  --sidebar-bg: #2c3e50;
-  --message-bg: #ffffff;
-  --system-message: #ffe6cc;
-  --private-message: #e6f7ff;
-  --text-color: #333;
-  --light-text: #888;
-  --border-color: #e0e0e0;
-  --online-status: #4caf50;
-  --away-status: #ff9800;
-  --notification: #ff5252;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.app-container {
-  display: flex;
-  height: 100%;
-}
-
-/* Sidebar Styles */
-.sidebar {
-  width: 250px;
-  background-color: var(--sidebar-bg);
-  color: white;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.user-profile {
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.2);
-  text-align: center;
-}
-
-.user-avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background-color: var(--primary-color);
-  margin: 0 auto 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: bold;
-  color: white;
-}
-
-.user-name {
-  font-weight: bold;
-  margin-bottom: 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.user-status {
-  font-size: 0.8rem;
-  color: var(--online-status);
-}
-
-.rooms-section, .users-section {
-  padding: 15px;
-}
-
-.section-title {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  margin-bottom: 15px;
-  color: #aaa;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.room-list, .user-list {
-  list-style: none;
-}
-
-.room-item, .user-item {
-  padding: 10px;
-  margin-bottom: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  transition: background-color 0.2s;
-}
-
-.room-item:hover, .user-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.room-item.active {
-  background-color: var(--primary-color);
-}
-
-.room-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: var(--secondary-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 10px;
-  font-weight: bold;
-}
-
-.room-name {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.room-notification {
-  background-color: var(--notification);
-  color: white;
-  font-size: 0.7rem;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.user-avatar-sm {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: var(--secondary-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 10px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: white;
-}
-
-.user-status-indicator {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-left: auto;
-}
-
-.status-online {
-  background-color: var(--online-status);
-}
-
-.status-away {
-  background-color: var(--away-status);
-}
-
-/* Chat Area Styles */
-.chat-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.chat-header {
-  padding: 15px 20px;
-  background-color: white;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.room-title {
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-.room-info {
-  font-size: 0.9rem;
-  color: var(--light-text);
-}
-
-.messages-container {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-  background-color: #f0f2f5;
-}
-
-.message {
-  margin-bottom: 15px;
-  display: flex;
-  max-width: 80%;
-}
-
-.message.self {
-  margin-left: auto;
-  flex-direction: row-reverse;
-}
-
-.message.system {
-  max-width: 100%;
-  justify-content: center;
-}
-
-.message.private {
-  border-left: 3px solid var(--primary-color);
-  padding-left: 5px;
-}
-
-.message-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: var(--secondary-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 10px;
-  font-weight: bold;
-  color: white;
-  flex-shrink: 0;
-}
-
-.message-content {
-  background-color: var(--message-bg);
-  padding: 10px 15px;
-  border-radius: 18px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  max-width: 100%;
-  overflow-wrap: break-word;
-  word-break: break-word;
-}
-
-.message.system .message-content {
-  background-color: var(--system-message);
-  font-style: italic;
-}
-
-.message.private .message-content {
-  background-color: var(--private-message);
-}
-
-.message-sender {
-  font-weight: bold;
-  margin-bottom: 3px;
-  color: var(--primary-color);
-}
-
-.message-text {
-  line-height: 1.4;
-  max-width: 100%;
-}
-
-.message-time {
-  font-size: 0.7rem;
-  color: var(--light-text);
-  margin-top: 3px;
-  text-align: right;
-}
-
-.message.self .message-time {
-  text-align: left;
-}
-
-.input-area {
-  padding: 15px 20px;
-  background-color: white;
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-}
-
-.message-input {
-  flex: 1;
-  padding: 12px 15px;
-  border: 1px solid var(--border-color);
-  border-radius: 24px;
-  outline: none;
-  font-family: inherit;
-  resize: none;
-  max-height: 120px;
-}
-
-.message-input:focus {
-  border-color: var(--primary-color);
-}
-
-.send-button {
-  margin-left: 10px;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.send-button:hover {
-  background-color: #3a5a80;
-}
-
-.send-button:disabled {
-  background-color: var(--light-text);
-  cursor: not-allowed;
-}
-
-/* Login Modal */
-.login-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background-color: white;
-  padding: 30px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.modal-title {
-  margin-bottom: 20px;
-  text-align: center;
-  color: var(--primary-color);
-}
-
-.login-input {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  font-family: inherit;
-}
-
-.login-button {
-  width: 100%;
-  padding: 12px;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: bold;
-  transition: background-color 0.2s;
-}
-
-.login-button:hover {
-  background-color: #3a5a80;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 70px;
-    overflow: visible;
-  }
-  
-  .user-name, .room-name, .user-name-txt, .section-title span {
-    display: none;
-  }
-  
-  .user-profile, .rooms-section, .users-section {
-    padding: 10px 5px;
-    text-align: center;
-  }
-  
-  .room-item, .user-item {
-    justify-content: center;
-    padding: 15px 5px;
-  }
-  
-  .room-icon, .user-avatar-sm {
-    margin-right: 0;
-  }
-  
-  .room-notification {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-  }
-  
-  .room-item, .user-item {
-    position: relative;
-  }
-  
-  .user-status-indicator {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-  }
-}
-
-.new-message-notice {
-  position: sticky;
-  bottom: 10px;
-  background-color: var(--primary-color);
-  color: white;
-  text-align: center;
-  padding: 8px;
-  border-radius: 20px;
-  margin: 10px auto;
-  width: 200px;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  display: none;
-}
-
-.character-count {
-  font-size: 0.8rem;
-  color: var(--light-text);
-  margin-right: 10px;
-  min-width: 60px;
-  text-align: right;
-}
-
-.character-count.limit {
-  color: var(--notification);
-  font-weight: bold;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chautari - Chat Rooms</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-<div class="app-container">
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="user-profile">
-      <div class="user-avatar" id="userAvatar">U</div>
-      <div class="user-name" id="sidebarUserName">Username</div>
-      <div class="user-status" id="userStatus">Online</div>
-    </div>
-    
-    <div class="rooms-section">
-      <div class="section-title">
-        <span>Rooms</span>
-        <span>+</span>
+  <div id="chat-app">
+    <!-- Sidebar with room list -->
+    <div id="sidebar">
+      <h2>Rooms</h2>
+      <div id="room-list">
+        <div class="room-item active" data-room="public">General</div>
+        <!-- Private rooms will be appended here -->
       </div>
-      <ul class="room-list" id="roomList">
-        <li class="room-item active" data-room="public">
-          <div class="room-icon">C</div>
-          <div class="room-name">General</div>
-          <div class="room-notification" style="display: none;">0</div>
-        </li>
-        <!-- Room items will be added dynamically -->
-      </ul>
     </div>
-    
-    <div class="users-section">
-      <div class="section-title">
-        <span>Online Users</span>
-        <span>●</span>
+
+    <!-- Main chat area -->
+    <div id="chat-area">
+      <div id="chat-header">
+        <h2 id="current-room-title">General Chat</h2>
       </div>
-      <ul class="user-list" id="userList">
-        <!-- User items will be added dynamically -->
-      </ul>
+      <div id="messages"></div>
+      <form id="message-form">
+        <input id="message-input" type="text" placeholder="Type a message..." autocomplete="off" required/>
+        <button type="submit">Send</button>
+      </form>
     </div>
   </div>
-  
-  <!-- Chat Area -->
-  <div class="chat-area">
-    <div class="chat-header">
-      <div>
-        <div class="room-title" id="currentRoomTitle">General Chat</div>
-        <div class="room-info" id="roomInfo">0 users online</div>
-      </div>
-    </div>
-    
-    <div class="messages-container" id="messagesContainer">
-      <div class="message system">
-        <div class="message-content">
-          Welcome to Chautari! Start chatting now.
-        </div>
-      </div>
-      <!-- Messages will be added dynamically -->
-      
-      <div class="new-message-notice" id="newMessageNotice">New messages below!</div>
-    </div>
-    
-    <div class="input-area">
-      <span class="character-count" id="characterCount">0/500</span>
-      <textarea class="message-input" id="messageInput" placeholder="Type a message..." disabled></textarea>
-      <button class="send-button" id="sendButton" disabled>
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-        </svg>
-      </button>
-    </div>
-  </div>
-</div>
 
-<!-- Login Modal -->
-<div class="login-modal" id="loginModal">
-  <div class="modal-content">
-    <h2 class="modal-title">Join Chautari</h2>
-    <input type="text" class="login-input" id="loginUsername" placeholder="Enter your name" autocomplete="off">
-    <button class="login-button" id="loginButton">Join Chat</button>
-  </div>
-</div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
 
-<script src="/socket.io/socket.io.js"></script>
-<script>
-// DOM Elements
-const messagesContainer = document.getElementById('messagesContainer');
-const messageInput = document.getElementById('messageInput');
-const sendButton = document.getElementById('sendButton');
-const roomList = document.getElementById('roomList');
-const userList = document.getElementById('userList');
-const currentRoomTitle = document.getElementById('currentRoomTitle');
-const roomInfo = document.getElementById('roomInfo');
-const userAvatar = document.getElementById('userAvatar');
-const sidebarUserName = document.getElementById('sidebarUserName');
-const loginModal = document.getElementById('loginModal');
-const loginUsername = document.getElementById('loginUsername');
-const loginButton = document.getElementById('loginButton');
-const newMessageNotice = document.getElementById('newMessageNotice');
-const characterCount = document.getElementById('characterCount');
+    // DOM elements
+    const roomList = document.getElementById("room-list");
+    const messagesContainer = document.getElementById("messages");
+    const currentRoomTitle = document.getElementById("current-room-title");
+    const messageForm = document.getElementById("message-form");
+    const messageInput = document.getElementById("message-input");
 
-// App State
-let currentUser = '';
-let currentRoom = 'public';
-let socket = null;
-let userColors = {};
-let roomNotifications = {};
-let atBottom = true;
-let chatHistory = {}; // Store chat history for each room
+    // User & room state
+    let currentUser = prompt("Enter your username:") || "Anonymous";
+    let currentRoom = "public";
+    let chatHistory = {};
+    let roomNotifications = {};
 
-// Initialize the app
-function initApp() {
-  // Set up event listeners
-  loginButton.addEventListener('click', handleLogin);
-  loginUsername.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleLogin();
-  });
-  
-  sendButton.addEventListener('click', sendMessage);
-  messageInput.addEventListener('input', updateCharacterCount);
-  messageInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-  
-  messagesContainer.addEventListener('scroll', handleScroll);
-  newMessageNotice.addEventListener('click', scrollToBottom);
-  
-  // Initialize room notifications and chat history
-  roomNotifications['public'] = 0;
-  chatHistory['public'] = [];
-}
+    // ---- Core functions ----
+    function addMessage(msg) {
+      if (!chatHistory[msg.room]) chatHistory[msg.room] = [];
+      chatHistory[msg.room].push(msg);
 
-// Update character count
-function updateCharacterCount() {
-  const length = messageInput.value.length;
-  characterCount.textContent = `${length}/500`;
-  
-  if (length >= 450) {
-    characterCount.classList.add('limit');
-  } else {
-    characterCount.classList.remove('limit');
-  }
-  
-  // Enable/disable send button based on message length
-  sendButton.disabled = length === 0 || length > 500;
-}
-
-// Handle user login
-function handleLogin() {
-  const username = loginUsername.value.trim();
-  if (!username) return;
-  
-  currentUser = username;
-  userAvatar.textContent = username.charAt(0).toUpperCase();
-  sidebarUserName.textContent = username;
-  
-  // Connect to socket.io
-  socket = io();
-  
-  // Set up socket event listeners
-  socket.on('connect', () => {
-    console.log('Connected to server');
-    socket.emit('joinRoom', { username, room: 'public' });
-  });
-  
-  socket.on('chatMessage', (data) => {
-    // Store message in history regardless of current room
-    if (!chatHistory[data.room]) {
-      chatHistory[data.room] = [];
-    }
-    chatHistory[data.room].push(data);
-    
-    // If message is for current room, display it
-    if (data.room === currentRoom) {
-      addMessageToChat(data);
-    }
-    
-    // If message is from another room, show notification
-    if (data.room !== currentRoom) {
-      if (!roomNotifications[data.room]) {
-        roomNotifications[data.room] = 0;
+      if (msg.room === currentRoom) {
+        renderMessage(msg);
       }
-      roomNotifications[data.room]++;
+    }
+
+    function renderMessage(msg) {
+      const div = document.createElement("div");
+      div.classList.add("message");
+      if (msg.user === "System") div.classList.add("system");
+      if (msg.user === currentUser) div.classList.add("self");
+
+      div.innerHTML = `
+        <div class="message-content">
+          <div class="message-sender">${msg.user}</div>
+          <div class="message-text">${msg.text}</div>
+        </div>
+      `;
+      messagesContainer.appendChild(div);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function renderChat(room) {
+      messagesContainer.innerHTML = "";
+      if (chatHistory[room]) {
+        chatHistory[room].forEach(renderMessage);
+      }
+    }
+
+    function switchRoom(room) {
+      currentRoom = room;
+      currentRoomTitle.textContent = room === "public" ? "General Chat" : room;
+
+      // Update sidebar active state
+      document.querySelectorAll(".room-item").forEach(item => {
+        item.classList.toggle("active", item.dataset.room === room);
+      });
+
+      // Clear + restore chat for that room
+      renderChat(room);
+
+      // Reset notifications
+      roomNotifications[room] = 0;
       updateRoomNotifications();
+
+      // Tell server we joined
+      socket.emit("joinRoom", { username: currentUser, room });
     }
-  });
-  
-  socket.on('userList', (data) => {
-    updateUserList(data.users, data.room);
-  });
-  
-  socket.on('roomList', (data) => {
-    updateRoomList(data.rooms);
-  });
-  
-  // Hide login modal and enable input
-  loginModal.style.display = 'none';
-  messageInput.disabled = false;
-  
-  // Focus on message input
-  messageInput.focus();
-}
 
-// Send message to server
-function sendMessage() {
-  const text = messageInput.value.trim();
-  if (!text || !socket || text.length > 500) return;
-  
-  socket.emit('chatMessage', { room: currentRoom, text });
-  messageInput.value = '';
-  messageInput.style.height = 'auto';
-  updateCharacterCount();
-}
-
-// Add message to chat UI
-function addMessageToChat(data) {
-  const messageEl = document.createElement('div');
-  const isSystem = data.user === 'System';
-  const isSelf = data.user === currentUser;
-  const isPrivate = data.room.startsWith('private_');
-  
-  messageEl.className = 'message';
-  if (isSystem) messageEl.classList.add('system');
-  if (isSelf) messageEl.classList.add('self');
-  if (isPrivate) messageEl.classList.add('private');
-  
-  // Generate color for user if not exists
-  if (!userColors[data.user] && !isSystem) {
-    userColors[data.user] = generateColorFromString(data.user);
-  }
-  
-  const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  
-  messageEl.innerHTML = `
-    ${!isSystem ? `<div class="message-avatar" style="background-color: ${userColors[data.user]}">${data.user.charAt(0).toUpperCase()}</div>` : ''}
-    <div class="message-content">
-      ${!isSystem ? `<div class="message-sender">${data.user}</div>` : ''}
-      <div class="message-text">${data.text}</div>
-      <div class="message-time">${timestamp}</div>
-    </div>
-  `;
-  
-  messagesContainer.appendChild(messageEl);
-  
-  // Scroll to bottom if at bottom
-  if (atBottom) {
-    scrollToBottom();
-  } else {
-    newMessageNotice.style.display = 'block';
-  }
-}
-
-// Update user list in sidebar
-function updateUserList(users, room) {
-  if (room !== currentRoom) return;
-  
-  userList.innerHTML = '';
-  roomInfo.textContent = `${users.length} user${users.length !== 1 ? 's' : ''} online`;
-  
-  users.forEach(user => {
-    if (user === currentUser) return;
-    
-    const userEl = document.createElement('li');
-    userEl.className = 'user-item';
-    userEl.dataset.user = user;
-    
-    userEl.innerHTML = `
-      <div class="user-avatar-sm" style="background-color: ${userColors[user] || '#6e9887'}">${user.charAt(0).toUpperCase()}</div>
-      <div class="user-name-txt">${user}</div>
-      <div class="user-status-indicator status-online"></div>
-    `;
-    
-    userEl.addEventListener('click', () => {
-      createPrivateRoom(user);
-    });
-    
-    userList.appendChild(userEl);
-  });
-}
-
-// Update room list in sidebar
-function updateRoomList(rooms) {
-  // Keep the public room and add others
-  const publicRoom = roomList.querySelector('[data-room="public"]');
-  roomList.innerHTML = '';
-  roomList.appendChild(publicRoom);
-  
-  rooms.forEach(room => {
-    if (room === 'public') return;
-    
-    const roomEl = document.createElement('li');
-    roomEl.className = 'room-item';
-    roomEl.dataset.room = room;
-    
-    // Check if it's a private room
-    const isPrivate = room.startsWith('private_');
-    let roomName = room;
-    let roomIcon = 'R';
-    
-    if (isPrivate) {
-      const users = room.replace('private_', '').split('_');
-      const otherUser = users.find(user => user !== currentUser);
-      roomName = `Private: ${otherUser}`;
-      roomIcon = otherUser.charAt(0).toUpperCase();
+    function updateRoomNotifications() {
+      document.querySelectorAll(".room-item").forEach(item => {
+        const room = item.dataset.room;
+        const count = roomNotifications[room] || 0;
+        item.textContent = room === "public" ? "General" : room;
+        if (count > 0 && room !== currentRoom) {
+          item.textContent += ` (${count})`;
+        }
+      });
     }
-    
-    roomEl.innerHTML = `
-      <div class="room-icon">${roomIcon}</div>
-      <div class="room-name">${roomName}</div>
-      <div class="room-notification" style="display: ${roomNotifications[room] > 0 ? 'flex' : 'none'};">${roomNotifications[room] || 0}</div>
-    `;
-    
-    roomEl.addEventListener('click', () => {
-      joinRoom(room);
+
+    // ---- Socket events ----
+    socket.emit("joinRoom", { username: currentUser, room: currentRoom });
+
+    socket.on("chatMessage", msg => {
+      addMessage(msg);
+
+      if (msg.room !== currentRoom) {
+        if (!roomNotifications[msg.room]) roomNotifications[msg.room] = 0;
+        roomNotifications[msg.room]++;
+        updateRoomNotifications();
+      }
     });
-    
-    roomList.appendChild(roomEl);
-  });
-  
-  // Set active room
-  const activeRoom = roomList.querySelector(`[data-room="${currentRoom}"]`);
-  if (activeRoom) {
-    activeRoom.classList.add('active');
-  }
-}
 
-// Update room notifications
-function updateRoomNotifications() {
-  Object.keys(roomNotifications).forEach(room => {
-    const notificationEl = roomList.querySelector(`[data-room="${room}"] .room-notification`);
-    if (notificationEl) {
-      notificationEl.textContent = roomNotifications[room];
-      notificationEl.style.display = roomNotifications[room] > 0 ? 'flex' : 'none';
-    }
-  });
-}
+    socket.on("privateRoomCreated", room => {
+      if (!document.querySelector(`[data-room="${room}"]`)) {
+        const div = document.createElement("div");
+        div.classList.add("room-item");
+        div.dataset.room = room;
+        div.textContent = room;
+        roomList.appendChild(div);
 
-// Join a room
-function joinRoom(room) {
-  if (room === currentRoom) return;
-  
-  // Emit room leave and join events
-  socket.emit('leaveRoom', { room: currentRoom });
-  socket.emit('joinRoom', { username: currentUser, room });
-  
-  // Update current room
-  currentRoom = room;
-  
-  // Update UI
-  const roomItems = roomList.querySelectorAll('.room-item');
-  roomItems.forEach(item => item.classList.remove('active'));
-  
-  const newRoomItem = roomList.querySelector(`[data-room="${room}"]`);
-  if (newRoomItem) {
-    newRoomItem.classList.add('active');
-  }
-  
-  // Clear notifications for this room
-  roomNotifications[room] = 0;
-  updateRoomNotifications();
-  
-  // Update room title
-  if (room === 'public') {
-    currentRoomTitle.textContent = 'General Chat';
-  } else if (room.startsWith('private_')) {
-    const users = room.replace('private_', '').split('_');
-    const otherUser = users.find(user => user !== currentUser);
-    currentRoomTitle.textContent = `Private: ${otherUser}`;
-  } else {
-    currentRoomTitle.textContent = room;
-  }
-  
-  // Clear messages and load room history
-  messagesContainer.innerHTML = '';
-  
-  // Load chat history for this room if it exists
-  if (chatHistory[room] && chatHistory[room].length > 0) {
-    chatHistory[room].forEach(msg => {
-      addMessageToChat(msg);
+        div.addEventListener("click", () => switchRoom(room));
+      }
     });
-  } else {
-    // Add welcome message if no history
-    const welcomeMsg = document.createElement('div');
-    welcomeMsg.className = 'message system';
-    welcomeMsg.innerHTML = '<div class="message-content">You joined the room</div>';
-    messagesContainer.appendChild(welcomeMsg);
-  }
-  
-  scrollToBottom();
-}
 
-// Create a private room
-function createPrivateRoom(otherUser) {
-  const privateRoom = `private_${[currentUser, otherUser].sort().join('_')}`;
-  
-  // Check if room already exists
-  if (!roomList.querySelector(`[data-room="${privateRoom}"]`)) {
-    // Add to room list
-    const roomEl = document.createElement('li');
-    roomEl.className = 'room-item';
-    roomEl.dataset.room = privateRoom;
-    
-    roomEl.innerHTML = `
-      <div class="room-icon">${otherUser.charAt(0).toUpperCase()}</div>
-      <div class="room-name">Private: ${otherUser}</div>
-      <div class="room-notification" style="display: none;">0</div>
-    `;
-    
-    roomEl.addEventListener('click', () => {
-      joinRoom(privateRoom);
+    // ---- Event listeners ----
+    messageForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      const msg = { user: currentUser, text, room: currentRoom };
+      socket.emit("chatMessage", msg);
+      messageInput.value = "";
     });
-    
-    roomList.appendChild(roomEl);
-  }
-  
-  // Join the room
-  joinRoom(privateRoom);
-}
 
-// Handle scroll events
-function handleScroll() {
-  const threshold = 20;
-  atBottom = messagesContainer.scrollTop + messagesContainer.clientHeight >= messagesContainer.scrollHeight - threshold;
-  
-  if (atBottom) {
-    newMessageNotice.style.display = 'none';
-  }
-}
-
-// Scroll to bottom of messages
-function scrollToBottom() {
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  newMessageNotice.style.display = 'none';
-  atBottom = true;
-}
-
-// Generate color from string
-function generateColorFromString(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  
-  const hue = hash % 360;
-  return `hsl(${hue}, 65%, 65%)`;
-}
-
-// Initialize the app when DOM is loaded
-document.addEventListener('DOMContentLoaded', initApp);
-</script>
+    // Make General room clickable again
+    document.querySelectorAll(".room-item").forEach(item => {
+      item.addEventListener("click", () => {
+        const room = item.dataset.room;
+        switchRoom(room);
+      });
+    });
+  </script>
 </body>
 </html>
