@@ -9,6 +9,44 @@
       margin: 0;
       padding: 0;
       display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    #chatRooms {
+      width: 60px;
+      background: #f7f7f7;
+      border-right: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 0;
+      gap: 10px;
+    }
+
+    .roomBubble {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .roomBubble:hover {
+      transform: scale(1.1);
+    }
+    .roomBubble.active {
+      border: 2px solid black;
+    }
+
+    /* Main Chat Area */
+    #chatArea {
+      flex: 1;
+      display: flex;
       flex-direction: column;
       height: 100vh;
     }
@@ -30,7 +68,7 @@
     #inputContainer {
       position: fixed;
       bottom: 0;
-      left: 0;
+      left: 60px; /* leave space for sidebar */
       right: 0;
       display: flex;
       padding: 10px;
@@ -47,53 +85,39 @@
     li span.username {
       font-weight: bold;
       margin-right: 5px;
-    }
-
-    /* New message banner */
-    #newMessageBanner {
-      position: fixed;
-      bottom: 70px; /* just above input box */
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #797979;
-      color: white;
-      padding: 5px 10px;
-      border-radius: 12px;
       cursor: pointer;
-      display: none; /* hidden by default */
-      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <h1>Chautari</h1>
+  <!-- Sidebar -->
+  <div id="chatRooms">
+    <div class="roomBubble active" id="publicRoom">C</div>
+  </div>
 
-  <ul id="messagesList"></ul>
-
-  <!-- New message banner -->
-  <div id="newMessageBanner" onclick="scrollToBottom()">Messages below ↓</div>
-
-  <div id="inputContainer">
-    <input id="username" placeholder="Your name">
-    <input id="message" placeholder="Type message">
-    <button onclick="sendMessage()">Send</button>
+  <!-- Main Chat -->
+  <div id="chatArea">
+    <h1>Chautari</h1>
+    <ul id="messagesList"></ul>
+    <div id="inputContainer">
+      <input id="username" placeholder="Your name">
+      <input id="message" placeholder="Type message">
+      <button onclick="sendMessage()">Send</button>
+    </div>
   </div>
 
   <script>
     const messagesList = document.getElementById('messagesList');
     const messageInput = document.getElementById('message');
-    const newMessageBanner = document.getElementById('newMessageBanner');
+    const chatRooms = document.getElementById('chatRooms');
 
     // Store colors per username
     const userColors = {};
+    let currentRoom = "public"; // "public" or "private:<username>"
 
     function getRandomColor() {
-      const letters = '0123456789ABCDEF';
-      let color = '#';
-      for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
+      const hue = Math.floor(Math.random() * 360);
+      return `hsl(${hue}, 70%, 40%)`; // readable colors
     }
 
     async function sendMessage() {
@@ -112,42 +136,55 @@
     }
 
     async function fetchMessages() {
-      // Check if user is at bottom before refresh
-      const isAtBottom =
-        messagesList.scrollHeight - messagesList.scrollTop <= messagesList.clientHeight + 5;
-
       const res = await fetch('/messages');
       const messages = await res.json();
       messagesList.innerHTML = '';
 
       messages.forEach(msg => {
-        // Assign a color if new user
         if (!userColors[msg.user]) {
           userColors[msg.user] = getRandomColor();
         }
 
-        const li = document.createElement('li');
-        li.innerHTML = `<span class="username" style="color:${userColors[msg.user]}">${msg.user}:</span> ${msg.text}`;
-        messagesList.appendChild(li);
+        // Filter by room
+        if (currentRoom === "public" || currentRoom === `private:${msg.user}`) {
+          const li = document.createElement('li');
+          const userSpan = document.createElement('span');
+          userSpan.className = "username";
+          userSpan.style.color = userColors[msg.user];
+          userSpan.textContent = msg.user + ":";
+          userSpan.onclick = () => openPrivateChat(msg.user);
+          li.appendChild(userSpan);
+          li.append(" " + msg.text);
+          messagesList.appendChild(li);
+        }
       });
+    }
 
-      if (isAtBottom) {
-        scrollToBottom();
-        newMessageBanner.style.display = "none";
-      } else {
-        newMessageBanner.style.display = "block";
+    function openPrivateChat(user) {
+      const roomId = `private:${user}`;
+      if (!document.getElementById(roomId)) {
+        const bubble = document.createElement('div');
+        bubble.className = "roomBubble";
+        bubble.id = roomId;
+        bubble.textContent = user[0].toUpperCase();
+        bubble.style.backgroundColor = userColors[user];
+        bubble.onclick = () => switchRoom(roomId);
+        chatRooms.appendChild(bubble);
       }
+      switchRoom(roomId);
     }
 
-    function scrollToBottom() {
-      messagesList.scrollTop = messagesList.scrollHeight;
-      newMessageBanner.style.display = "none";
+    function switchRoom(roomId) {
+      currentRoom = roomId === "publicRoom" ? "public" : roomId;
+      document.querySelectorAll('.roomBubble').forEach(b => b.classList.remove('active'));
+      document.getElementById(roomId)?.classList.add('active');
+      fetchMessages();
     }
 
-    // Refresh messages every 2 seconds
+    // Refresh messages every 2s
     setInterval(fetchMessages, 2000);
 
-    // Send message on Enter
+    // Send on Enter
     messageInput.addEventListener('keypress', e => {
       if (e.key === 'Enter') sendMessage();
     });
