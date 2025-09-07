@@ -444,6 +444,21 @@ body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   display: none;
 }
+
+.back-button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  margin-right: 15px;
+}
+
+.back-button svg {
+  margin-right: 5px;
+}
 </style>
 </head>
 <body>
@@ -465,7 +480,7 @@ body {
         <li class="room-item active" data-room="public">
           <div class="room-icon">C</div>
           <div class="room-name">General</div>
-          <div class="room-notification" style="display: none;">3</div>
+          <div class="room-notification" style="display: none;">0</div>
         </li>
         <!-- Room items will be added dynamically -->
       </ul>
@@ -485,9 +500,17 @@ body {
   <!-- Chat Area -->
   <div class="chat-area">
     <div class="chat-header">
-      <div>
-        <div class="room-title" id="currentRoomTitle">General Chat</div>
-        <div class="room-info" id="roomInfo">4 users online</div>
+      <div style="display: flex; align-items: center;">
+        <button class="back-button" id="backButton" style="display: none;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          Back
+        </button>
+        <div>
+          <div class="room-title" id="currentRoomTitle">General Chat</div>
+          <div class="room-info" id="roomInfo">0 users online</div>
+        </div>
       </div>
     </div>
     
@@ -539,6 +562,7 @@ const loginModal = document.getElementById('loginModal');
 const loginUsername = document.getElementById('loginUsername');
 const loginButton = document.getElementById('loginButton');
 const newMessageNotice = document.getElementById('newMessageNotice');
+const backButton = document.getElementById('backButton');
 
 // App State
 let currentUser = '';
@@ -547,6 +571,7 @@ let socket = null;
 let userColors = {};
 let roomNotifications = {};
 let atBottom = true;
+let chatHistory = {}; // Store chat history for each room
 
 // Initialize the app
 function initApp() {
@@ -566,9 +591,11 @@ function initApp() {
   
   messagesContainer.addEventListener('scroll', handleScroll);
   newMessageNotice.addEventListener('click', scrollToBottom);
+  backButton.addEventListener('click', goBackToPublic);
   
-  // Initialize room notifications
+  // Initialize room notifications and chat history
   roomNotifications['public'] = 0;
+  chatHistory['public'] = [];
 }
 
 // Handle user login
@@ -591,6 +618,12 @@ function handleLogin() {
   
   socket.on('chatMessage', (data) => {
     addMessageToChat(data);
+    
+    // Store message in history
+    if (!chatHistory[data.room]) {
+      chatHistory[data.room] = [];
+    }
+    chatHistory[data.room].push(data);
     
     // If message is from another room, show notification
     if (data.room !== currentRoom) {
@@ -779,22 +812,39 @@ function joinRoom(room) {
   // Update room title
   if (room === 'public') {
     currentRoomTitle.textContent = 'General Chat';
+    backButton.style.display = 'none';
   } else if (room.startsWith('private_')) {
     const users = room.replace('private_', '').split('_');
     const otherUser = users.find(user => user !== currentUser);
     currentRoomTitle.textContent = `Private: ${otherUser}`;
+    backButton.style.display = 'flex';
   } else {
     currentRoomTitle.textContent = room;
+    backButton.style.display = 'none';
   }
   
-  // Clear messages and load room history (simulated)
+  // Clear messages and load room history
   messagesContainer.innerHTML = '';
-  const welcomeMsg = document.createElement('div');
-  welcomeMsg.className = 'message system';
-  welcomeMsg.innerHTML = '<div class="message-content">You joined the room</div>';
-  messagesContainer.appendChild(welcomeMsg);
+  
+  // Load chat history for this room if it exists
+  if (chatHistory[room] && chatHistory[room].length > 0) {
+    chatHistory[room].forEach(msg => {
+      addMessageToChat(msg);
+    });
+  } else {
+    // Add welcome message if no history
+    const welcomeMsg = document.createElement('div');
+    welcomeMsg.className = 'message system';
+    welcomeMsg.innerHTML = '<div class="message-content">You joined the room</div>';
+    messagesContainer.appendChild(welcomeMsg);
+  }
   
   scrollToBottom();
+}
+
+// Go back to public room
+function goBackToPublic() {
+  joinRoom('public');
 }
 
 // Create a private room
