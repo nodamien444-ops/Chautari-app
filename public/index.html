@@ -99,8 +99,9 @@
 
   <div id="inputContainer">
     <input id="username" placeholder="Your name">
-    <input id="message" placeholder="Type message">
-    <button onclick="sendMessage()">Send</button>
+    <button id="joinBtn">Join Chat</button>
+    <input id="message" placeholder="Type message" disabled>
+    <button id="sendBtn" disabled>Send</button>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -109,19 +110,28 @@
     const messagesList = document.getElementById('messagesList');
     const messageInput = document.getElementById('message');
     const usernameInput = document.getElementById('username');
+    const joinBtn = document.getElementById('joinBtn');
+    const sendBtn = document.getElementById('sendBtn');
     const chatRoomsDiv = document.getElementById('chatRooms');
     const newMessageNotice = document.getElementById('newMessageNotice');
 
     let currentRoom = "public";
     const userColors = {};
+    let socketUsername = "";
 
     // Join a room
     function joinRoom(room) {
-      const username = usernameInput.value.trim() || "Anonymous";
       currentRoom = room;
       messagesList.innerHTML = '';
-      socket.emit('joinRoom', { username, room });
-      socket.username = username; // store it for later messages
+      socket.emit('joinRoom', { username: socketUsername, room });
+    }
+
+    // Send message
+    function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
+      socket.emit('chatMessage', { room: currentRoom, text });
+      messageInput.value = '';
     }
 
     // Handle room bubble clicks
@@ -131,6 +141,7 @@
       }
     });
 
+    // Random color generator
     function getRandomColor() {
       const letters = '0123456789ABCDEF';
       let color = '#';
@@ -140,6 +151,7 @@
       return color;
     }
 
+    // Add message to chat
     function addMessage(msg) {
       if (!userColors[msg.user]) userColors[msg.user] = getRandomColor();
       const li = document.createElement('li');
@@ -147,6 +159,7 @@
       messagesList.appendChild(li);
     }
 
+    // Scroll handling
     let atBottom = true;
     messagesList.addEventListener('scroll', () => {
       const threshold = 20;
@@ -154,13 +167,14 @@
       if (atBottom) newMessageNotice.style.display = 'none';
     });
 
+    // Socket message listener
     socket.on('chatMessage', msg => {
       if (msg.room === currentRoom) {
         addMessage(msg);
         if (atBottom) messagesList.scrollTop = messagesList.scrollHeight;
         else newMessageNotice.style.display = 'block';
       } else {
-        // Create bubble if not exist for new room
+        // Create bubble if not exist
         if (!document.querySelector(`.roomBubble[data-room="${msg.room}"]`)) {
           const bubble = document.createElement('div');
           bubble.classList.add('roomBubble');
@@ -172,20 +186,25 @@
       }
     });
 
-    // Send message
-    function sendMessage() {
-      const text = messageInput.value.trim();
-      if (!text) return;
-      socket.emit('chatMessage', { room: currentRoom, text });
-      messageInput.value = '';
-    }
+    // Join button click
+    joinBtn.addEventListener('click', () => {
+      const username = usernameInput.value.trim();
+      if (!username) return alert("Please enter your name!");
+      socketUsername = username;
+      usernameInput.disabled = true;
+      joinBtn.disabled = true;
+      messageInput.disabled = false;
+      sendBtn.disabled = false;
+      joinRoom('public'); // join default room
+    });
 
+    // Send button click
+    sendBtn.addEventListener('click', sendMessage);
+
+    // Press Enter to send
     messageInput.addEventListener('keypress', e => {
       if (e.key === 'Enter') sendMessage();
     });
-
-    // Auto join public chat on load
-    joinRoom('public');
   </script>
 </body>
 </html>
