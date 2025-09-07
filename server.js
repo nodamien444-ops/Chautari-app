@@ -9,27 +9,26 @@ const io = socketIo(server);
 // Serve all static files from "public" folder
 app.use(express.static("public"));
 
-const path = require("path");
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
 io.on("connection", (socket) => {
+  // Store username when joining
   socket.on("joinRoom", ({ username, room }) => {
     socket.username = username;
     socket.join(room);
 
-    io.to(room).emit("chatMessage", {
-      user: "System",
-      text: `${username} joined ${room}`,
-      room,
-    });
+    // Only send join message if not the default 'public' on first load
+    if(room !== "public") {
+      io.to(room).emit("chatMessage", {
+        user: "System",
+        text: `${username} joined ${room}`,
+        room,
+      });
+    }
   });
 
+  // Handle sending message
   socket.on("chatMessage", ({ room, text }) => {
     io.to(room).emit("chatMessage", {
-      user: socket.username,
+      user: socket.username || "Anonymous",
       text,
       room,
     });
