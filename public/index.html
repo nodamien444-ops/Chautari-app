@@ -6,19 +6,20 @@
 <title>Chautari - Chat Rooms</title>
 <style>
 :root {
-  --primary-color: #4a6fa5;
-  --secondary-color: #6e9887;
+  --primary-color: #698550;
+  --secondary-color: #749157;
   --background-color: #f8f9fa;
-  --sidebar-bg: #2c3e50;
+  --sidebar-bg: #698550;
   --message-bg: #ffffff;
-  --system-message: #ffe6cc;
-  --private-message: #e6f7ff;
+  --system-message: #e6f0d5;
+  --private-message: #e6f7ee;
   --text-color: #333;
-  --light-text: #888;
-  --border-color: #e0e0e0;
+  --light-text: #666;
+  --border-color: #dde5cc;
   --online-status: #4caf50;
   --away-status: #ff9800;
-  --notification: #ff5252;
+  --notification: #e74c3c;
+  --self-message: #b0e68a;
 }
 
 * {
@@ -53,15 +54,16 @@ body {
 
 .user-profile {
   padding: 20px;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.1);
   text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .user-avatar {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background-color: var(--primary-color);
+  background-color: var(--secondary-color);
   margin: 0 auto 10px;
   display: flex;
   align-items: center;
@@ -81,7 +83,7 @@ body {
 
 .user-status {
   font-size: 0.8rem;
-  color: var(--online-status);
+  color: #d4e6b3;
 }
 
 .rooms-section, .users-section {
@@ -92,7 +94,7 @@ body {
   font-size: 0.9rem;
   text-transform: uppercase;
   margin-bottom: 15px;
-  color: #aaa;
+  color: #d4e6b3;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -117,7 +119,7 @@ body {
 }
 
 .room-item.active {
-  background-color: var(--primary-color);
+  background-color: #5a7248;
 }
 
 .room-icon {
@@ -130,6 +132,7 @@ body {
   justify-content: center;
   margin-right: 10px;
   font-weight: bold;
+  color: white;
 }
 
 .room-name {
@@ -137,6 +140,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: white;
 }
 
 .room-notification {
@@ -162,6 +166,10 @@ body {
   margin-right: 10px;
   font-size: 0.8rem;
   font-weight: bold;
+  color: white;
+}
+
+.user-name-txt {
   color: white;
 }
 
@@ -195,11 +203,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .room-title {
   font-weight: bold;
   font-size: 1.2rem;
+  color: var(--primary-color);
 }
 
 .room-info {
@@ -211,7 +221,7 @@ body {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  background-color: #f0f2f5;
+  background-color: #f9fbf4;
 }
 
 .message {
@@ -262,10 +272,16 @@ body {
 .message.system .message-content {
   background-color: var(--system-message);
   font-style: italic;
+  color: #5a7248;
 }
 
 .message.private .message-content {
   background-color: var(--private-message);
+  border: 1px solid #d4e6b3;
+}
+
+.message.self .message-content {
+  background-color: var(--self-message);
 }
 
 .message-sender {
@@ -296,6 +312,7 @@ body {
   border-top: 1px solid var(--border-color);
   display: flex;
   align-items: center;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .message-input {
@@ -329,7 +346,7 @@ body {
 }
 
 .send-button:hover {
-  background-color: #3a5a80;
+  background-color: #5a7248;
 }
 
 .send-button:disabled {
@@ -389,7 +406,7 @@ body {
 }
 
 .login-button:hover {
-  background-color: #3a5a80;
+  background-color: #5a7248;
 }
 
 /* Responsive Design */
@@ -418,9 +435,9 @@ body {
   }
   
   .room-notification {
-  position: absolute;
-  top: 5px;
-  right: 5px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
   }
   
   .room-item, .user-item {
@@ -728,7 +745,7 @@ function updateUserList(users, room) {
     userEl.dataset.user = user;
     
     userEl.innerHTML = `
-      <div class="user-avatar-sm" style="background-color: ${userColors[user] || '#6e9887'}">${user.charAt(0).toUpperCase()}</div>
+      <div class="user-avatar-sm" style="background-color: ${userColors[user] || '#749157'}">${user.charAt(0).toUpperCase()}</div>
       <div class="user-name-txt">${user}</div>
       <div class="user-status-indicator status-online"></div>
     `;
