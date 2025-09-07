@@ -4,78 +4,15 @@
 <meta charset="UTF-8">
 <title>Chautari</title>
 <style>
-  body { 
-    font-family: sans-serif; 
-    margin:0; padding:0; 
-    display:flex; 
-    height:100vh; 
-  }
-  #chatRooms { 
-    width:60px; 
-    background:#eee; 
-    display:flex; 
-    flex-direction:column; 
-    align-items:center; 
-    padding:10px 0; 
-    border-right:1px solid #ccc; 
-    overflow-y:auto; 
-  }
-  .roomBubble { 
-    width:40px; 
-    height:40px; 
-    border-radius:50%; 
-    background:#ccc; 
-    display:flex; 
-    justify-content:center; 
-    align-items:center; 
-    margin:5px 0; cursor:pointer; 
-    font-weight:bold; 
-    color:white; 
-    user-select:none; 
-  }
-  #mainChat { 
-    flex:1; 
-    display:flex; 
-    flex-direction:column; 
-    position:relative; 
-  }
-  #messagesList { 
-    flex:1; 
-    padding:10px; 
-    margin:0; 
-    list-style:none; 
-    overflow-y:auto; 
-    margin-bottom:60px; 
-  }
-  #inputContainer { 
-    position:fixed; 
-    bottom:0; 
-    left:60px; 
-    right:0; 
-    display:flex; 
-    padding:10px; 
-    gap:5px; 
-    background-color:#f0f0f0; 
-    border-top:1px solid #ccc; 
-  }
-  #inputContainer input { 
-    flex:1; 
-    padding:5px; 
-  }
-  li span.username { 
-    font-weight:bold; 
-    margin-right:5px; 
-    cursor:pointer; 
-  }
-  .newMessageNotice { 
-    background:#fdfbee; 
-    color:black; 
-    text-align:center; 
-    font-weight:bold; 
-    padding:2px 0; 
-    margin-bottom:5px; 
-    display:none; 
-    }
+body { font-family: sans-serif; margin:0; padding:0; display:flex; height:100vh; }
+#chatRooms { width:60px; background:#eee; display:flex; flex-direction:column; align-items:center; padding:10px 0; border-right:1px solid #ccc; overflow-y:auto; }
+.roomBubble { width:40px; height:40px; border-radius:50%; background:#ccc; display:flex; justify-content:center; align-items:center; margin:5px 0; cursor:pointer; font-weight:bold; color:white; user-select:none; }
+#mainChat { flex:1; display:flex; flex-direction:column; position:relative; }
+#messagesList { flex:1; padding:10px; margin:0; list-style:none; overflow-y:auto; margin-bottom:60px; }
+#inputContainer { position:fixed; bottom:0; left:60px; right:0; display:flex; padding:10px; gap:5px; background-color:#f0f0f0; border-top:1px solid #ccc; }
+#inputContainer input { flex:1; padding:5px; }
+li span.username { font-weight:bold; margin-right:5px; cursor:pointer; }
+.newMessageNotice { background:#fdfbee; color:black; text-align:center; font-weight:bold; padding:2px 0; margin-bottom:5px; display:none; }
 </style>
 </head>
 <body>
@@ -107,125 +44,88 @@ const sendBtn = document.getElementById('sendBtn');
 const chatRoomsDiv = document.getElementById('chatRooms');
 const newMessageNotice = document.getElementById('newMessageNotice');
 
-let currentRoom = 'public';
 let socketUsername = '';
+let currentRoom = 'public';
+const chatHistory = {}; // {roomName: [messages]}
 const userColors = {};
-const chatHistory = {};
 let atBottom = true;
 
-function getRandomColor() {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i=0;i<6;i++) color += letters[Math.floor(Math.random()*16)];
-  return color;
-}
-
-// Add message to DOM
-function addMessage(msg) {
+// Helpers
+function getRandomColor(){const letters='0123456789ABCDEF';let color='#';for(let i=0;i<6;i++) color+=letters[Math.floor(Math.random()*16)];return color;}
+function addMessage(msg){
   if(!userColors[msg.user]) userColors[msg.user] = getRandomColor();
-  const li = document.createElement('li');
-  li.innerHTML = `<span class="username" data-username="${msg.user}" style="color:${userColors[msg.user]}">${msg.user}:</span> ${msg.text}`;
-  messagesList.appendChild(li);
+  if(!chatHistory[msg.room]) chatHistory[msg.room] = [];
+  chatHistory[msg.room].push(msg);
 
-  // Click username to create private chat
-  li.querySelector('.username').addEventListener('click', () => {
-    if(msg.user !== socketUsername) createPrivateChat(msg.user);
-  });
+  if(msg.room === currentRoom){
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="username" data-username="${msg.user}" style="color:${userColors[msg.user]}">${msg.user}:</span> ${msg.text}`;
+    messagesList.appendChild(li);
+    li.querySelector('.username').addEventListener('click', ()=>{if(msg.user !== socketUsername) createPrivateChat(msg.user)});
+    if(atBottom) messagesList.scrollTop = messagesList.scrollHeight;
+    else newMessageNotice.style.display = 'block';
+  }
 }
 
-// Scroll behavior
-messagesList.addEventListener('scroll', () => {
+// Scroll
+messagesList.addEventListener('scroll', ()=>{
   const threshold = 20;
   atBottom = messagesList.scrollTop + messagesList.clientHeight >= messagesList.scrollHeight - threshold;
-  if(atBottom) newMessageNotice.style.display = 'none';
+  if(atBottom) newMessageNotice.style.display='none';
 });
 
 // Join room
-function joinRoom(room) {
+function joinRoom(room){
   if(currentRoom === room) return;
   currentRoom = room;
-  messagesList.innerHTML = '';
+  messagesList.innerHTML='';
   if(chatHistory[room]) chatHistory[room].forEach(msg => addMessage(msg));
-  socket.emit('joinRoom', { username: socketUsername, room });
+  socket.emit('joinRoom',{username:socketUsername, room});
 }
 
-// Private room name generator
-function getPrivateRoomName(userA, userB) {
-  const users = [userA,userB].sort();
-  return `private_${users[0]}_${users[1]}`;
-}
+// Private room naming
+function getPrivateRoomName(a,b){return `private_${[a,b].sort().join('_')}`;}
 
-// Create private chat bubble and join
-function createPrivateChat(otherUser) {
-  const privateRoom = getPrivateRoomName(socketUsername, otherUser);
-  if(!document.querySelector(`.roomBubble[data-room="${privateRoom}"]`)) {
-    const bubble = document.createElement('div');
+// Create private chat
+function createPrivateChat(otherUser){
+  const privateRoom = getPrivateRoomName(socketUsername,otherUser);
+  if(!document.querySelector(`.roomBubble[data-room="${privateRoom}"]`)){
+    const bubble=document.createElement('div');
     bubble.classList.add('roomBubble');
-    bubble.dataset.room = privateRoom;
-    bubble.textContent = otherUser[0].toUpperCase();
-    bubble.style.background = getRandomColor();
+    bubble.dataset.room=privateRoom;
+    bubble.textContent=otherUser[0].toUpperCase();
+    bubble.style.background=getRandomColor();
     chatRoomsDiv.appendChild(bubble);
   }
   joinRoom(privateRoom);
 }
 
-// Socket message listener
-socket.on('chatMessage', msg => {
-  if(!chatHistory[msg.room]) chatHistory[msg.room] = [];
-  chatHistory[msg.room].push(msg);
-
-  if(msg.room === currentRoom) {
-    addMessage(msg);
-    if(atBottom) messagesList.scrollTop = messagesList.scrollHeight;
-    else newMessageNotice.style.display = 'block';
-  }
-
-  // Private bubble creation if needed
-  if(msg.room.startsWith('private_') && msg.room.includes(socketUsername)) {
-    if(!document.querySelector(`.roomBubble[data-room="${msg.room}"]`)) {
-      const bubble = document.createElement('div');
-      bubble.classList.add('roomBubble');
-      bubble.dataset.room = msg.room;
-      const otherUser = msg.room.replace('private_','').split('_').filter(u=>u!==socketUsername)[0];
-      bubble.textContent = otherUser[0].toUpperCase();
-      bubble.style.background = getRandomColor();
-      chatRoomsDiv.appendChild(bubble);
-    }
-  }
-});
+// Socket listeners
+socket.on('chatMessage', msg => addMessage(msg));
 
 // Join button
-joinBtn.addEventListener('click', () => {
-  const username = usernameInput.value.trim();
+joinBtn.addEventListener('click', ()=>{
+  const username=usernameInput.value.trim();
   if(!username) return alert("Enter your name!");
-  socketUsername = username;
-  usernameInput.disabled = true;
-  joinBtn.disabled = true;
-  messageInput.disabled = false;
-  sendBtn.disabled = false;
-
-  // Join public room
+  socketUsername=username;
+  usernameInput.disabled=true; joinBtn.disabled=true; messageInput.disabled=false; sendBtn.disabled=false;
   joinRoom('public');
 });
 
 // Send message
-sendBtn.addEventListener('click', () => {
-  const text = messageInput.value.trim();
+sendBtn.addEventListener('click', ()=>{
+  const text=messageInput.value.trim();
   if(!text) return;
-  socket.emit('chatMessage', { room: currentRoom, text });
-  messageInput.value = '';
+  socket.emit('chatMessage',{room:currentRoom,text});
+  messageInput.value='';
 });
 
-// Enter key to send
-messageInput.addEventListener('keypress', e => {
-  if(e.key === 'Enter') sendBtn.click();
-});
+// Enter key
+messageInput.addEventListener('keypress', e=>{if(e.key==='Enter') sendBtn.click();});
 
 // Room bubble click
-chatRoomsDiv.addEventListener('click', e => {
-  if(e.target.classList.contains('roomBubble')) {
-    joinRoom(e.target.dataset.room);
-  }
+chatRoomsDiv.addEventListener('click', e=>{
+  if(e.target.classList.contains('roomBubble')) joinRoom(e.target.dataset.room);
 });
 </script>
 </body>
