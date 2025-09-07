@@ -453,6 +453,8 @@ body {
   font-size: 0.8rem;
   color: var(--light-text);
   margin-right: 10px;
+  min-width: 60px;
+  text-align: right;
 }
 
 .character-count.limit {
@@ -519,7 +521,7 @@ body {
     
     <div class="input-area">
       <span class="character-count" id="characterCount">0/500</span>
-      <textarea class="message-input" id="messageInput" placeholder="Type a message..." disabled maxlength="500"></textarea>
+      <textarea class="message-input" id="messageInput" placeholder="Type a message..." disabled></textarea>
       <button class="send-button" id="sendButton" disabled>
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -601,6 +603,9 @@ function updateCharacterCount() {
   } else {
     characterCount.classList.remove('limit');
   }
+  
+  // Enable/disable send button based on message length
+  sendButton.disabled = length === 0 || length > 500;
 }
 
 // Handle user login
@@ -654,7 +659,6 @@ function handleLogin() {
   // Hide login modal and enable input
   loginModal.style.display = 'none';
   messageInput.disabled = false;
-  sendButton.disabled = false;
   
   // Focus on message input
   messageInput.focus();
