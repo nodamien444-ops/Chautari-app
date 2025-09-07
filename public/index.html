@@ -94,7 +94,7 @@
 
   <div id="mainChat">
     <ul id="messagesList"></ul>
-    <div class="newMessageNotice" id="newMessageNotice">messages below !</div>
+    <div class="newMessageNotice" id="newMessageNotice">messages below!</div>
   </div>
 
   <div id="inputContainer">
@@ -120,13 +120,13 @@
       const username = usernameInput.value.trim() || "Anonymous";
       currentRoom = room;
       messagesList.innerHTML = '';
-       socket.emit('joinRoom', { username, room });
-       socket.username = username; // store it for later messages
+      socket.emit('joinRoom', { username, room });
+      socket.username = username; // store it for later messages
     }
 
     // Handle room bubble clicks
     chatRoomsDiv.addEventListener('click', e => {
-      if(e.target.classList.contains('roomBubble')) {
+      if (e.target.classList.contains('roomBubble')) {
         joinRoom(e.target.dataset.room);
       }
     });
@@ -151,17 +151,17 @@
     messagesList.addEventListener('scroll', () => {
       const threshold = 20;
       atBottom = messagesList.scrollTop + messagesList.clientHeight >= messagesList.scrollHeight - threshold;
-      if(atBottom) newMessageNotice.style.display = 'none';
+      if (atBottom) newMessageNotice.style.display = 'none';
     });
 
     socket.on('chatMessage', msg => {
-      if(msg.room === currentRoom) {
+      if (msg.room === currentRoom) {
         addMessage(msg);
-        if(atBottom) messagesList.scrollTop = messagesList.scrollHeight;
+        if (atBottom) messagesList.scrollTop = messagesList.scrollHeight;
         else newMessageNotice.style.display = 'block';
       } else {
         // Create bubble if not exist for new room
-        if(!document.querySelector(`.roomBubble[data-room="${msg.room}"]`)) {
+        if (!document.querySelector(`.roomBubble[data-room="${msg.room}"]`)) {
           const bubble = document.createElement('div');
           bubble.classList.add('roomBubble');
           bubble.dataset.room = msg.room;
@@ -172,15 +172,16 @@
       }
     });
 
+    // Send message
     function sendMessage() {
       const text = messageInput.value.trim();
-      if(!text) return;
+      if (!text) return;
       socket.emit('chatMessage', { room: currentRoom, text });
       messageInput.value = '';
     }
 
     messageInput.addEventListener('keypress', e => {
-      if(e.key === 'Enter') sendMessage();
+      if (e.key === 'Enter') sendMessage();
     });
 
     // Auto join public chat on load
