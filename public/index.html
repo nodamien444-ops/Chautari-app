@@ -183,25 +183,27 @@ function createPrivateChat(otherUser) {
 
 // Socket message listener
 socket.on('chatMessage', msg => {
+  // store in history
   if (!chatHistory[msg.room]) chatHistory[msg.room] = [];
   chatHistory[msg.room].push(msg);
 
+  // always display messages for current room
   if (msg.room === currentRoom) {
     addMessage(msg);
     if (atBottom) messagesList.scrollTop = messagesList.scrollHeight;
     else newMessageNotice.style.display = 'block';
-  } else {
-    // Create bubble if private room doesn't exist and you're one of the users
-    if (msg.room.startsWith('private_') && msg.room.includes(socketUsername)) {
-      if (!document.querySelector(`.roomBubble[data-room="${msg.room}"]`)) {
-        const bubble = document.createElement('div');
-        bubble.classList.add('roomBubble');
-        bubble.dataset.room = msg.room;
-        const otherUser = msg.room.replace('private_', '').split('_').filter(u => u !== socketUsername)[0];
-        bubble.textContent = otherUser[0].toUpperCase();
-        bubble.style.background = getRandomColor();
-        chatRoomsDiv.appendChild(bubble);
-      }
+  }
+
+  // create bubble for private room dynamically
+  if (msg.room.startsWith('private_') && msg.room.includes(socketUsername)) {
+    if (!document.querySelector(`.roomBubble[data-room="${msg.room}"]`)) {
+      const bubble = document.createElement('div');
+      bubble.classList.add('roomBubble');
+      bubble.dataset.room = msg.room;
+      const otherUser = msg.room.replace('private_', '').split('_').filter(u => u !== socketUsername)[0];
+      bubble.textContent = otherUser[0].toUpperCase();
+      bubble.style.background = getRandomColor();
+      chatRoomsDiv.appendChild(bubble);
     }
   }
 });
