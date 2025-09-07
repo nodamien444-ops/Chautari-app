@@ -9,6 +9,12 @@ const io = socketIo(server);
 // Serve all static files from "public" folder
 app.use(express.static("public"));
 
+const path = require("path");
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 io.on("connection", (socket) => {
   socket.on("joinRoom", ({ username, room }) => {
     socket.username = username;
