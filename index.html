@@ -12,11 +12,10 @@
       height: 100vh;
     }
 
-    /* Sidebar */
-    #chatRooms {
+    /* Sidebar for chat rooms */
+    #rooms {
       width: 60px;
-      background: #f7f7f7;
-      border-right: 1px solid #ccc;
+      background: #e0e0e0;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -28,32 +27,25 @@
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: #ddd;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
+      background: #ccc;
       cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .roomBubble:hover {
-      transform: scale(1.1);
-    }
-    .roomBubble.active {
-      border: 2px solid black;
+      font-weight: bold;
     }
 
-    /* Main Chat Area */
+    .roomBubble.active {
+      background: #888;
+      color: #fff;
+    }
+
+    /* Chat area */
     #chatArea {
       flex: 1;
       display: flex;
       flex-direction: column;
       height: 100vh;
-    }
-
-    h1 {
-      text-align: center;
-      margin: 10px 0;
     }
 
     #messagesList {
@@ -68,7 +60,7 @@
     #inputContainer {
       position: fixed;
       bottom: 0;
-      left: 60px; /* leave space for sidebar */
+      left: 60px; /* offset for sidebar */
       right: 0;
       display: flex;
       padding: 10px;
@@ -85,20 +77,19 @@
     li span.username {
       font-weight: bold;
       margin-right: 5px;
-      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <!-- Sidebar -->
-  <div id="chatRooms">
+  <!-- Sidebar with rooms -->
+  <div id="rooms">
     <div class="roomBubble active" id="publicRoom">C</div>
   </div>
 
-  <!-- Main Chat -->
+  <!-- Main chat area -->
   <div id="chatArea">
-    <h1>Chautari</h1>
     <ul id="messagesList"></ul>
+
     <div id="inputContainer">
       <input id="username" placeholder="Your name">
       <input id="message" placeholder="Type message">
@@ -109,15 +100,14 @@
   <script>
     const messagesList = document.getElementById('messagesList');
     const messageInput = document.getElementById('message');
-    const chatRooms = document.getElementById('chatRooms');
+    const roomsDiv = document.getElementById('rooms');
 
-    // Store colors per username
+    let currentRoom = "public";
     const userColors = {};
-    let currentRoom = "public"; // "public" or "private:<username>"
 
     function getRandomColor() {
       const hue = Math.floor(Math.random() * 360);
-      return `hsl(${hue}, 70%, 40%)`; // readable colors
+      return `hsl(${hue}, 70%, 50%)`;
     }
 
     async function sendMessage() {
@@ -125,7 +115,7 @@
       const text = messageInput.value;
       if (!text) return;
 
-      await fetch('/messages', {
+      await fetch(`/messages/${currentRoom}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user, text })
@@ -136,7 +126,7 @@
     }
 
     async function fetchMessages() {
-      const res = await fetch('/messages');
+      const res = await fetch(`/messages/${currentRoom}`);
       const messages = await res.json();
       messagesList.innerHTML = '';
 
@@ -144,52 +134,52 @@
         if (!userColors[msg.user]) {
           userColors[msg.user] = getRandomColor();
         }
-
-        // Filter by room
-        if (currentRoom === "public" || currentRoom === `private:${msg.user}`) {
-          const li = document.createElement('li');
-          const userSpan = document.createElement('span');
-          userSpan.className = "username";
-          userSpan.style.color = userColors[msg.user];
-          userSpan.textContent = msg.user + ":";
-          userSpan.onclick = () => openPrivateChat(msg.user);
-          li.appendChild(userSpan);
-          li.append(" " + msg.text);
-          messagesList.appendChild(li);
-        }
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="username" style="color:${userColors[msg.user]}">${msg.user}:</span> ${msg.text}`;
+        li.addEventListener('click', () => openPrivateChat(msg.user));
+        messagesList.appendChild(li);
       });
     }
 
     function openPrivateChat(user) {
-      const roomId = `private:${user}`;
-      if (!document.getElementById(roomId)) {
+      if (user === "Anonymous") return;
+      currentRoom = `private-${user}`;
+      highlightRoomBubble(currentRoom);
+
+      if (!document.getElementById(currentRoom)) {
         const bubble = document.createElement('div');
-        bubble.className = "roomBubble";
-        bubble.id = roomId;
+        bubble.className = 'roomBubble';
+        bubble.id = currentRoom;
         bubble.textContent = user[0].toUpperCase();
         bubble.style.backgroundColor = userColors[user];
-        bubble.onclick = () => switchRoom(roomId);
-        chatRooms.appendChild(bubble);
+        bubble.onclick = () => switchRoom(currentRoom);
+        roomsDiv.appendChild(bubble);
       }
-      switchRoom(roomId);
+
+      fetchMessages();
     }
 
-    function switchRoom(roomId) {
-      currentRoom = roomId === "publicRoom" ? "public" : roomId;
-      document.querySelectorAll('.roomBubble').forEach(b => b.classList.remove('active'));
-      document.getElementById(roomId)?.classList.add('active');
+    function switchRoom(room) {
+      currentRoom = room;
+      highlightRoomBubble(room);
       fetchMessages();
+    }
+
+    function highlightRoomBubble(room) {
+      document.querySelectorAll('.roomBubble').forEach(b => b.classList.remove('active'));
+      const activeBubble = document.getElementById(room === "public" ? "publicRoom" : room);
+      if (activeBubble) activeBubble.classList.add('active');
     }
 
     // Refresh messages every 2s
     setInterval(fetchMessages, 2000);
 
-    // Send on Enter
+    // Send message on Enter
     messageInput.addEventListener('keypress', e => {
       if (e.key === 'Enter') sendMessage();
     });
 
-    fetchMessages(); // initial load
+    fetchMessages();
   </script>
 </body>
 </html>
