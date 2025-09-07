@@ -6,25 +6,51 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+// Store active users and rooms
+const activeUsers = new Map(); // socket.id -> {username, room}
+const roomUsers = new Map();   // room -> Set of usernames
+
+// Serve all static files from "public" folder
 app.use(express.static("public"));
 
-// Keep track of users and rooms
-const users = {}; // { socketId: { username, room } }
-const rooms = { public: [] }; // { roomName: [username1, username2] }
-
 io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
 
-  // Join a room
+  // Store username when joining
   socket.on("joinRoom", ({ username, room }) => {
-    users[socket.id] = { username, room };
+    // Leave previous room if any
+    if (activeUsers.has(socket.id)) {
+      const previousRoom = activeUsers.get(socket.id).room;
+      socket.leave(previousRoom);
+      
+      // Remove user from previous room
+      if (roomUsers.has(previousRoom)) {
+        roomUsers.get(previousRoom).delete(username);
+        if (roomUsers.get(previousRoom).size === 0) {
+          roomUsers.delete(previousRoom);
+        }
+        
+        // Notify users in previous room
+        io.to(previousRoom).emit("userList", {
+          room: previousRoom,
+          users: Array.from(roomUsers.get(previousRoom) || [])
+        });
+      }
+    }
 
-    if (!rooms[room]) rooms[room] = [];
-    if (!rooms[room].includes(username)) rooms[room].push(username);
-
+    // Join new room
+    socket.username = username;
     socket.join(room);
+    activeUsers.set(socket.id, { username, room });
 
-    // Notify room of new user (skip public if first load)
-    if (room !== "public") {
+    // Add user to room
+    if (!roomUsers.has(room)) {
+      roomUsers.set(room, new Set());
+    }
+    roomUsers.get(room).add(username);
+
+    // Send join message if not the default 'public' on first load
+    if (room !== "public" || activeUsers.has(socket.id)) {
       io.to(room).emit("chatMessage", {
         user: "System",
         text: `${username} joined ${room}`,
@@ -32,53 +58,88 @@ io.on("connection", (socket) => {
       });
     }
 
-    // Update user list in the room
-    io.to(room).emit("userList", { users: rooms[room], room });
+    // Send updated user list to room
+    io.to(room).emit("userList", {
+      room,
+      users: Array.from(roomUsers.get(room))
+    });
 
-    // Update room list for all users
-    io.emit("roomList", { rooms: Object.keys(rooms) });
+    // Send room list to all users
+    io.emit("roomList", {
+      rooms: Array.from(roomUsers.keys())
+    });
   });
 
-  // Leave a room
-  socket.on("leaveRoom", ({ room }) => {
-    const user = users[socket.id];
-    if (!user) return;
-
-    rooms[room] = rooms[room].filter(u => u !== user.username);
-    socket.leave(room);
-
-    // Update user list in that room
-    io.to(room).emit("userList", { users: rooms[room], room });
-  });
-
-  // Chat message
+  // Handle sending message
   socket.on("chatMessage", ({ room, text }) => {
-    const user = users[socket.id];
     io.to(room).emit("chatMessage", {
-      user: user?.username || "Anonymous",
+      user: socket.username || "Anonymous",
       text,
       room,
     });
   });
 
-  // Disconnect
-  socket.on("disconnect", () => {
-    const user = users[socket.id];
-    if (!user) return;
-
-    // Remove user from their room
-    const { username, room } = user;
-    rooms[room] = rooms[room].filter(u => u !== username);
-
-    // Notify others
-    io.to(room).emit("userList", { users: rooms[room], room });
-    io.emit("chatMessage", {
-      user: "System",
-      text: `${username} left`,
-      room: "public",
+  // Handle leaving room
+  socket.on("leaveRoom", ({ room }) => {
+    socket.leave(room);
+    
+    if (activeUsers.has(socket.id)) {
+      const username = activeUsers.get(socket.id).username;
+      
+      // Remove user from room
+      if (roomUsers.has(room)) {
+        roomUsers.get(room).delete(username);
+        if (roomUsers.get(room).size === 0) {
+          roomUsers.delete(room);
+        }
+        
+        // Notify users in room
+        io.to(room).emit("userList", {
+          room,
+          users: Array.from(roomUsers.get(room) || [])
+        });
+      }
+    }
+    
+    // Send updated room list to all users
+    io.emit("roomList", {
+      rooms: Array.from(roomUsers.keys())
     });
+  });
 
-    delete users[socket.id];
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+    
+    if (activeUsers.has(socket.id)) {
+      const { username, room } = activeUsers.get(socket.id);
+      activeUsers.delete(socket.id);
+      
+      // Remove user from room
+      if (roomUsers.has(room)) {
+        roomUsers.get(room).delete(username);
+        if (roomUsers.get(room).size === 0) {
+          roomUsers.delete(room);
+        }
+        
+        // Notify users in room
+        io.to(room).emit("userList", {
+          room,
+          users: Array.from(roomUsers.get(room) || [])
+        });
+        
+        // Send leave message
+        io.to(room).emit("chatMessage", {
+          user: "System",
+          text: `${username} left`,
+          room,
+        });
+      }
+      
+      // Send updated room list to all users
+      io.emit("roomList", {
+        rooms: Array.from(roomUsers.keys())
+      });
+    }
   });
 });
 
