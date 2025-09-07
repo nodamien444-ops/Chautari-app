@@ -117,7 +117,7 @@
 
     // Join a room
     function joinRoom(room) {
-      const usesr = username.value.trim() || "Anonymous";
+      const user = username.value.trim() || "Anonymous";
       currentRoom = room;
       messagesList.innerHTML = '';
       socket.emit('joinRoom', { username: usernameInput.value || "Anonymous", room });
