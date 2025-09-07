@@ -673,6 +673,20 @@ function handleLogin() {
     updateRoomList(data.rooms);
   });
   
+  socket.on('chatHistory', (data) => {
+    // Store the chat history for this room
+    chatHistory[data.room] = data.messages;
+    
+    // If this is the current room, display the history
+    if (data.room === currentRoom) {
+      messagesContainer.innerHTML = '';
+      data.messages.forEach(msg => {
+        addMessageToChat(msg);
+      });
+      scrollToBottom();
+    }
+  });
+  
   // Hide login modal and enable input
   loginModal.style.display = 'none';
   messageInput.disabled = false;
@@ -709,7 +723,7 @@ function addMessageToChat(data) {
     userColors[data.user] = generateColorFromString(data.user);
   }
   
-  const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const timestamp = new Date(data.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   
   messageEl.innerHTML = `
     ${!isSystem ? `<div class="message-avatar" style="background-color: ${userColors[data.user]}">${data.user.charAt(0).toUpperCase()}</div>` : ''}

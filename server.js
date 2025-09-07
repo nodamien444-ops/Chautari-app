@@ -9,6 +9,7 @@ const io = socketIo(server);
 // Store active users and rooms
 const activeUsers = new Map(); // socket.id -> {username, room}
 const roomUsers = new Map();   // room -> Set of usernames
+const chatHistory = new Map(); // room -> Array of messages
 
 // Serve all static files from "public" folder
 app.use(express.static("public"));
@@ -49,13 +50,25 @@ io.on("connection", (socket) => {
     }
     roomUsers.get(room).add(username);
 
+    // Initialize chat history for room if it doesn't exist
+    if (!chatHistory.has(room)) {
+      chatHistory.set(room, []);
+    }
+
     // Send join message if not the default 'public' on first load
     if (room !== "public" || activeUsers.has(socket.id)) {
-      io.to(room).emit("chatMessage", {
+      const systemMessage = {
         user: "System",
         text: `${username} joined ${room}`,
         room,
-      });
+        timestamp: new Date().toISOString()
+      };
+      
+      // Add to chat history
+      chatHistory.get(room).push(systemMessage);
+      
+      // Send to all users in the room
+      io.to(room).emit("chatMessage", systemMessage);
     }
 
     // Send updated user list to room
@@ -68,14 +81,38 @@ io.on("connection", (socket) => {
     io.emit("roomList", {
       rooms: Array.from(roomUsers.keys())
     });
+
+    // Send chat history for this room to the joining user
+    socket.emit("chatHistory", {
+      room,
+      messages: chatHistory.get(room)
+    });
   });
 
   // Handle sending message
   socket.on("chatMessage", ({ room, text }) => {
-    io.to(room).emit("chatMessage", {
+    const messageData = {
       user: socket.username || "Anonymous",
       text,
       room,
+      timestamp: new Date().toISOString()
+    };
+    
+    // Store message in history
+    if (!chatHistory.has(room)) {
+      chatHistory.set(room, []);
+    }
+    chatHistory.get(room).push(messageData);
+    
+    // Send to all users in the room
+    io.to(room).emit("chatMessage", messageData);
+    
+    // Also send to all users who are in other rooms but should see notifications
+    // This ensures notifications work across all rooms
+    activeUsers.forEach((userData, socketId) => {
+      if (userData.room !== room) {
+        io.to(socketId).emit("chatMessage", messageData);
+      }
     });
   });
 
@@ -128,11 +165,19 @@ io.on("connection", (socket) => {
         });
         
         // Send leave message
-        io.to(room).emit("chatMessage", {
+        const leaveMessage = {
           user: "System",
           text: `${username} left`,
           room,
-        });
+          timestamp: new Date().toISOString()
+        };
+        
+        // Add to chat history
+        if (chatHistory.has(room)) {
+          chatHistory.get(room).push(leaveMessage);
+        }
+        
+        io.to(room).emit("chatMessage", leaveMessage);
       }
       
       // Send updated room list to all users
