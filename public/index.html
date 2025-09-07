@@ -1,210 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Chautari</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      height: 100vh;
-    }
+<meta charset="UTF-8">
+<title>Chautari</title>
+<style>
+  body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+  }
 
-    #chatRooms {
-      width: 60px;
-      background: #eee;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px 0;
-      border-right: 1px solid #ccc;
-      overflow-y: auto;
-    }
+  #chatRooms {
+    width: 60px;
+    background: #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+    border-right: 1px solid #ccc;
+    overflow-y: auto;
+  }
 
-    .roomBubble {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #ccc;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 5px 0;
-      cursor: pointer;
-      font-weight: bold;
-      color: white;
-      user-select: none;
-    }
+  .roomBubble {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px 0;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    user-select: none;
+  }
 
-    #mainChat {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
+  #mainChat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
 
-    #messagesList {
-      flex: 1;
-      padding: 10px;
-      margin: 0;
-      list-style: none;
-      overflow-y: auto;
-      margin-bottom: 60px;
-    }
+  #messagesList {
+    flex: 1;
+    padding: 10px;
+    margin: 0;
+    list-style: none;
+    overflow-y: auto;
+    margin-bottom: 60px;
+  }
 
-    #inputContainer {
-      position: fixed;
-      bottom: 0;
-      left: 60px;
-      right: 0;
-      display: flex;
-      padding: 10px;
-      gap: 5px;
-      background-color: #f0f0f0;
-      border-top: 1px solid #ccc;
-    }
+  #inputContainer {
+    position: fixed;
+    bottom: 0;
+    left: 60px;
+    right: 0;
+    display: flex;
+    padding: 10px;
+    gap: 5px;
+    background-color: #f0f0f0;
+    border-top: 1px solid #ccc;
+  }
 
-    #inputContainer input {
-      flex: 1;
-      padding: 5px;
-    }
+  #inputContainer input {
+    flex: 1;
+    padding: 5px;
+  }
 
-    li span.username {
-      font-weight: bold;
-      margin-right: 5px;
-    }
+  li span.username {
+    font-weight: bold;
+    margin-right: 5px;
+    cursor: pointer;
+  }
 
-    .newMessageNotice {
-      background: #fdfbee;
-      color: black;
-      text-align: center;
-      font-weight: bold;
-      padding: 2px 0;
-      margin-bottom: 5px;
-      display: none;
-    }
-  </style>
+  .newMessageNotice {
+    background: #fdfbee;
+    color: black;
+    text-align: center;
+    font-weight: bold;
+    padding: 2px 0;
+    margin-bottom: 5px;
+    display: none;
+  }
+</style>
 </head>
 <body>
-  <div id="chatRooms">
-    <div class="roomBubble" data-room="public">C</div>
-  </div>
 
-  <div id="mainChat">
-    <ul id="messagesList"></ul>
-    <div class="newMessageNotice" id="newMessageNotice">messages below!</div>
-  </div>
+<div id="chatRooms">
+  <div class="roomBubble" data-room="public">C</div>
+</div>
 
-  <div id="inputContainer">
-    <input id="username" placeholder="Your name">
-    <button id="joinBtn">Join Chat</button>
-    <input id="message" placeholder="Type message" disabled>
-    <button id="sendBtn" disabled>Send</button>
-  </div>
+<div id="mainChat">
+  <ul id="messagesList"></ul>
+  <div class="newMessageNotice" id="newMessageNotice">messages below!</div>
+</div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-    const messagesList = document.getElementById('messagesList');
-    const messageInput = document.getElementById('message');
-    const usernameInput = document.getElementById('username');
-    const joinBtn = document.getElementById('joinBtn');
-    const sendBtn = document.getElementById('sendBtn');
-    const chatRoomsDiv = document.getElementById('chatRooms');
-    const newMessageNotice = document.getElementById('newMessageNotice');
+<div id="inputContainer">
+  <input id="username" placeholder="Your name">
+  <button id="joinBtn">Join Chat</button>
+  <input id="message" placeholder="Type message" disabled>
+  <button id="sendBtn" disabled>Send</button>
+</div>
 
-    let currentRoom = "public";
-    const userColors = {};
-    let socketUsername = "";
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+const messagesList = document.getElementById('messagesList');
+const messageInput = document.getElementById('message');
+const usernameInput = document.getElementById('username');
+const joinBtn = document.getElementById('joinBtn');
+const sendBtn = document.getElementById('sendBtn');
+const chatRoomsDiv = document.getElementById('chatRooms');
+const newMessageNotice = document.getElementById('newMessageNotice');
 
-    // Join a room
-    function joinRoom(room) {
-      currentRoom = room;
-      messagesList.innerHTML = '';
-      socket.emit('joinRoom', { username: socketUsername, room });
-    }
+let currentRoom = "public";
+let socketUsername = "";
+const userColors = {};
+const chatHistory = {};
+let atBottom = true;
 
-    // Send message
-    function sendMessage() {
-      const text = messageInput.value.trim();
-      if (!text) return;
-      socket.emit('chatMessage', { room: currentRoom, text });
-      messageInput.value = '';
-    }
+// Random color generator
+function getRandomColor() {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) color += letters[Math.floor(Math.random() * 16)];
+  return color;
+}
 
-    // Handle room bubble clicks
-    chatRoomsDiv.addEventListener('click', e => {
-      if (e.target.classList.contains('roomBubble')) {
-        joinRoom(e.target.dataset.room);
+// Add message to chat
+function addMessage(msg) {
+  if (!userColors[msg.user]) userColors[msg.user] = getRandomColor();
+  const li = document.createElement('li');
+  li.innerHTML = `<span class="username" data-username="${msg.user}" style="color:${userColors[msg.user]}">${msg.user}:</span> ${msg.text}`;
+  messagesList.appendChild(li);
+
+  // Add click handler for private chat
+  li.querySelector('.username').addEventListener('click', () => {
+    if (msg.user !== socketUsername) createPrivateChat(msg.user);
+  });
+}
+
+// Scroll handling
+messagesList.addEventListener('scroll', () => {
+  const threshold = 20;
+  atBottom = messagesList.scrollTop + messagesList.clientHeight >= messagesList.scrollHeight - threshold;
+  if (atBottom) newMessageNotice.style.display = 'none';
+});
+
+// Join a room
+function joinRoom(room) {
+  if (currentRoom === room) return; // prevent re-joining same room
+  currentRoom = room;
+  messagesList.innerHTML = '';
+  if (chatHistory[room]) chatHistory[room].forEach(msg => addMessage(msg));
+  socket.emit('joinRoom', { username: socketUsername, room });
+}
+
+// Handle user clicks to create private chat
+function getPrivateRoomName(userA, userB) {
+  const users = [userA, userB].sort();
+  return `private_${users[0]}_${users[1]}`;
+}
+
+function createPrivateChat(otherUser) {
+  const privateRoom = getPrivateRoomName(socketUsername, otherUser);
+
+  if (!document.querySelector(`.roomBubble[data-room="${privateRoom}"]`)) {
+    const bubble = document.createElement('div');
+    bubble.classList.add('roomBubble');
+    bubble.dataset.room = privateRoom;
+    bubble.textContent = otherUser[0].toUpperCase();
+    bubble.style.background = getRandomColor();
+    chatRoomsDiv.appendChild(bubble);
+  }
+
+  joinRoom(privateRoom);
+}
+
+// Socket message listener
+socket.on('chatMessage', msg => {
+  if (!chatHistory[msg.room]) chatHistory[msg.room] = [];
+  chatHistory[msg.room].push(msg);
+
+  if (msg.room === currentRoom) {
+    addMessage(msg);
+    if (atBottom) messagesList.scrollTop = messagesList.scrollHeight;
+    else newMessageNotice.style.display = 'block';
+  } else {
+    // Create bubble if private room doesn't exist and you're one of the users
+    if (msg.room.startsWith('private_') && msg.room.includes(socketUsername)) {
+      if (!document.querySelector(`.roomBubble[data-room="${msg.room}"]`)) {
+        const bubble = document.createElement('div');
+        bubble.classList.add('roomBubble');
+        bubble.dataset.room = msg.room;
+        const otherUser = msg.room.replace('private_', '').split('_').filter(u => u !== socketUsername)[0];
+        bubble.textContent = otherUser[0].toUpperCase();
+        bubble.style.background = getRandomColor();
+        chatRoomsDiv.appendChild(bubble);
       }
-    });
-
-    // Random color generator
-    function getRandomColor() {
-      const letters = '0123456789ABCDEF';
-      let color = '#';
-      for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
     }
+  }
+});
 
-    // Add message to chat
-    function addMessage(msg) {
-      if (!userColors[msg.user]) userColors[msg.user] = getRandomColor();
-      const li = document.createElement('li');
-      li.innerHTML = `<span class="username" style="color:${userColors[msg.user]}">${msg.user}:</span> ${msg.text}`;
-      messagesList.appendChild(li);
-    }
+// Join button click
+joinBtn.addEventListener('click', () => {
+  const username = usernameInput.value.trim();
+  if (!username) return alert("Please enter your name!");
+  socketUsername = username;
+  usernameInput.disabled = true;
+  joinBtn.disabled = true;
+  messageInput.disabled = false;
+  sendBtn.disabled = false;
+  joinRoom('public'); // join default room
+});
 
-    // Scroll handling
-    let atBottom = true;
-    messagesList.addEventListener('scroll', () => {
-      const threshold = 20;
-      atBottom = messagesList.scrollTop + messagesList.clientHeight >= messagesList.scrollHeight - threshold;
-      if (atBottom) newMessageNotice.style.display = 'none';
-    });
+// Send button
+sendBtn.addEventListener('click', () => {
+  const text = messageInput.value.trim();
+  if (!text) return;
+  socket.emit('chatMessage', { room: currentRoom, text });
+  messageInput.value = '';
+});
 
-    // Socket message listener
-    socket.on('chatMessage', msg => {
-      if (msg.room === currentRoom) {
-        addMessage(msg);
-        if (atBottom) messagesList.scrollTop = messagesList.scrollHeight;
-        else newMessageNotice.style.display = 'block';
-      } else {
-        // Create bubble if not exist
-        if (!document.querySelector(`.roomBubble[data-room="${msg.room}"]`)) {
-          const bubble = document.createElement('div');
-          bubble.classList.add('roomBubble');
-          bubble.dataset.room = msg.room;
-          bubble.textContent = msg.user[0].toUpperCase();
-          bubble.style.background = getRandomColor();
-          chatRoomsDiv.appendChild(bubble);
-        }
-      }
-    });
+// Enter key to send
+messageInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter') sendBtn.click();
+});
 
-    // Join button click
-    joinBtn.addEventListener('click', () => {
-      const username = usernameInput.value.trim();
-      if (!username) return alert("Please enter your name!");
-      socketUsername = username;
-      usernameInput.disabled = true;
-      joinBtn.disabled = true;
-      messageInput.disabled = false;
-      sendBtn.disabled = false;
-      joinRoom('public'); // join default room
-    });
-
-    // Send button click
-    sendBtn.addEventListener('click', sendMessage);
-
-    // Press Enter to send
-    messageInput.addEventListener('keypress', e => {
-      if (e.key === 'Enter') sendMessage();
-    });
-  </script>
+// Room bubble click
+chatRoomsDiv.addEventListener('click', e => {
+  if (e.target.classList.contains('roomBubble')) {
+    joinRoom(e.target.dataset.room);
+  }
+});
+</script>
 </body>
 </html>
