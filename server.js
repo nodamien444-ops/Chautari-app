@@ -6,42 +6,79 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// Serve all static files from "public" folder
 app.use(express.static("public"));
 
+// Keep track of users and rooms
+const users = {}; // { socketId: { username, room } }
+const rooms = { public: [] }; // { roomName: [username1, username2] }
+
 io.on("connection", (socket) => {
-  // Store username when joining
+
+  // Join a room
   socket.on("joinRoom", ({ username, room }) => {
-    socket.username = username;
+    users[socket.id] = { username, room };
+
+    if (!rooms[room]) rooms[room] = [];
+    if (!rooms[room].includes(username)) rooms[room].push(username);
+
     socket.join(room);
 
-    // Only send join message if not the default 'public' on first load
-    if(room !== "public") {
+    // Notify room of new user (skip public if first load)
+    if (room !== "public") {
       io.to(room).emit("chatMessage", {
         user: "System",
         text: `${username} joined ${room}`,
         room,
       });
     }
+
+    // Update user list in the room
+    io.to(room).emit("userList", { users: rooms[room], room });
+
+    // Update room list for all users
+    io.emit("roomList", { rooms: Object.keys(rooms) });
   });
 
-  // Handle sending message
+  // Leave a room
+  socket.on("leaveRoom", ({ room }) => {
+    const user = users[socket.id];
+    if (!user) return;
+
+    rooms[room] = rooms[room].filter(u => u !== user.username);
+    socket.leave(room);
+
+    // Update user list in that room
+    io.to(room).emit("userList", { users: rooms[room], room });
+  });
+
+  // Chat message
   socket.on("chatMessage", ({ room, text }) => {
+    const user = users[socket.id];
     io.to(room).emit("chatMessage", {
-      user: socket.username || "Anonymous",
+      user: user?.username || "Anonymous",
       text,
       room,
     });
   });
 
+  // Disconnect
   socket.on("disconnect", () => {
-    if (socket.username) {
-      io.emit("chatMessage", {
-        user: "System",
-        text: `${socket.username} left`,
-        room: "public",
-      });
-    }
+    const user = users[socket.id];
+    if (!user) return;
+
+    // Remove user from their room
+    const { username, room } = user;
+    rooms[room] = rooms[room].filter(u => u !== username);
+
+    // Notify others
+    io.to(room).emit("userList", { users: rooms[room], room });
+    io.emit("chatMessage", {
+      user: "System",
+      text: `${username} left`,
+      room: "public",
+    });
+
+    delete users[socket.id];
   });
 });
 
