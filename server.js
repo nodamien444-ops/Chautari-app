@@ -1,41 +1,43 @@
-const express = require('express');
-const path = require('path');
+const express = require("express");
+const http = require("http");
+const socketIo = require("socket.io");
+
 const app = express();
-const PORT = 3000;
+const server = http.createServer(app);
+const io = socketIo(server);
 
-// Store messages in memory, grouped by room
-let rooms = { public: [] };
+app.use(express.static("public"));
 
-// Middleware to parse JSON request bodies
-app.use(express.json());
+io.on("connection", (socket) => {
+  socket.on("joinRoom", ({ username, room }) => {
+    socket.username = username;
+    socket.join(room);
 
-// Serve static files
-app.use(express.static(path.join(__dirname)));
+    // Notify the room
+    io.to(room).emit("chatMessage", {
+      user: "System",
+      text: `${username} joined ${room}`,
+      room,
+    });
+  });
 
-// Route for homepage
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  socket.on("chatMessage", ({ room, text }) => {
+    io.to(room).emit("chatMessage", {
+      user: socket.username,
+      text,
+      room,
+    });
+  });
+
+  socket.on("disconnect", () => {
+    if (socket.username) {
+      io.emit("chatMessage", {
+        user: "System",
+        text: `${socket.username} left`,
+        room: "public",
+      });
+    }
+  });
 });
 
-// Get all messages for a room
-app.get('/messages/:room', (req, res) => {
-  const room = req.params.room || "public";
-  res.json(rooms[room] || []);
-});
-
-// Post a new message to a room
-app.post('/messages/:room', (req, res) => {
-  const room = req.params.room || "public";
-  const { user, text } = req.body;
-  if (!rooms[room]) rooms[room] = [];
-  if (text) {
-    rooms[room].push({ user, text });
-    res.status(201).json({ success: true });
-  } else {
-    res.status(400).json({ success: false, message: 'No text provided' });
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+server.listen(3000, () => console.log("Server running on http://localhost:3000"));

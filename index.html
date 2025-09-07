@@ -2,184 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Chautari</title>
+  <title>Chat</title>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      height: 100vh;
-    }
-
-    /* Sidebar for chat rooms */
-    #rooms {
-      width: 60px;
-      background: #e0e0e0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px 0;
-      gap: 10px;
-    }
-
-    .roomBubble {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #ccc;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .roomBubble.active {
-      background: #888;
-      color: #fff;
-    }
-
-    /* Chat area */
-    #chatArea {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-
-    #messagesList {
-      flex: 1;
-      padding: 10px;
-      margin: 0;
-      list-style: none;
-      overflow-y: auto;
-      margin-bottom: 60px; /* leave space for fixed input */
-    }
-
-    #inputContainer {
-      position: fixed;
-      bottom: 0;
-      left: 60px; /* offset for sidebar */
-      right: 0;
-      display: flex;
-      padding: 10px;
-      gap: 5px;
-      background-color: #f0f0f0;
-      border-top: 1px solid #ccc;
-    }
-
-    #inputContainer input {
-      flex: 1;
-      padding: 5px;
-    }
-
-    li span.username {
-      font-weight: bold;
-      margin-right: 5px;
-    }
+    body { font-family: Arial, sans-serif; background: #fafafa; }
+    #chat { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; }
+    .msg { margin: 5px 0; }
+    .username { font-weight: bold; color: blue; cursor: pointer; }
+    #roomName { font-size: 14px; margin-bottom: 10px; font-style: italic; }
   </style>
 </head>
 <body>
-  <!-- Sidebar with rooms -->
-  <div id="rooms">
-    <div class="roomBubble active" id="publicRoom">C</div>
-  </div>
+  <div id="roomName">Room: public</div>
+  <div id="chat"></div>
+  <input id="msg" placeholder="Type message..." autocomplete="off">
+  <button id="send">Send</button>
 
-  <!-- Main chat area -->
-  <div id="chatArea">
-    <ul id="messagesList"></ul>
-
-    <div id="inputContainer">
-      <input id="username" placeholder="Your name">
-      <input id="message" placeholder="Type message">
-      <button onclick="sendMessage()">Send</button>
-    </div>
-  </div>
-
+  <script src="/socket.io/socket.io.js"></script>
   <script>
-    const messagesList = document.getElementById('messagesList');
-    const messageInput = document.getElementById('message');
-    const roomsDiv = document.getElementById('rooms');
-
+    const socket = io();
+    let username = prompt("Enter your name") || "Guest";
     let currentRoom = "public";
-    const userColors = {};
 
-    function getRandomColor() {
-      const hue = Math.floor(Math.random() * 360);
-      return `hsl(${hue}, 70%, 50%)`;
+    // Join public room
+    socket.emit("joinRoom", { username, room: currentRoom });
+
+    const chat = document.getElementById("chat");
+    const msgInput = document.getElementById("msg");
+    const sendBtn = document.getElementById("send");
+    const roomName = document.getElementById("roomName");
+
+    function addMessage({ user, text }) {
+      const div = document.createElement("div");
+      div.classList.add("msg");
+      div.innerHTML = `<span class="username">${user}</span>: ${text}`;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+
+      // Click username to start private chat
+      div.querySelector(".username").onclick = () => {
+        if (user === "System" || user === username) return;
+        startPrivateChat(user);
+      };
     }
 
-    async function sendMessage() {
-      const user = document.getElementById('username').value || "Anonymous";
-      const text = messageInput.value;
-      if (!text) return;
-
-      await fetch(`/messages/${currentRoom}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user, text })
-      });
-
-      messageInput.value = '';
-      fetchMessages();
-    }
-
-    async function fetchMessages() {
-      const res = await fetch(`/messages/${currentRoom}`);
-      const messages = await res.json();
-      messagesList.innerHTML = '';
-
-      messages.forEach(msg => {
-        if (!userColors[msg.user]) {
-          userColors[msg.user] = getRandomColor();
-        }
-        const li = document.createElement('li');
-        li.innerHTML = `<span class="username" style="color:${userColors[msg.user]}">${msg.user}:</span> ${msg.text}`;
-        li.addEventListener('click', () => openPrivateChat(msg.user));
-        messagesList.appendChild(li);
-      });
-    }
-
-    function openPrivateChat(user) {
-      if (user === "Anonymous") return;
-      currentRoom = `private-${user}`;
-      highlightRoomBubble(currentRoom);
-
-      if (!document.getElementById(currentRoom)) {
-        const bubble = document.createElement('div');
-        bubble.className = 'roomBubble';
-        bubble.id = currentRoom;
-        bubble.textContent = user[0].toUpperCase();
-        bubble.style.backgroundColor = userColors[user];
-        bubble.onclick = () => switchRoom(currentRoom);
-        roomsDiv.appendChild(bubble);
+    socket.on("chatMessage", (msg) => {
+      if (msg.room === currentRoom) {
+        addMessage(msg);
       }
-
-      fetchMessages();
-    }
-
-    function switchRoom(room) {
-      currentRoom = room;
-      highlightRoomBubble(room);
-      fetchMessages();
-    }
-
-    function highlightRoomBubble(room) {
-      document.querySelectorAll('.roomBubble').forEach(b => b.classList.remove('active'));
-      const activeBubble = document.getElementById(room === "public" ? "publicRoom" : room);
-      if (activeBubble) activeBubble.classList.add('active');
-    }
-
-    // Refresh messages every 2s
-    setInterval(fetchMessages, 2000);
-
-    // Send message on Enter
-    messageInput.addEventListener('keypress', e => {
-      if (e.key === 'Enter') sendMessage();
     });
 
-    fetchMessages();
+    sendBtn.onclick = () => {
+      const text = msgInput.value.trim();
+      if (text) {
+        socket.emit("chatMessage", { room: currentRoom, text });
+        msgInput.value = "";
+      }
+    };
+
+    function startPrivateChat(target) {
+      const privateRoom = [username, target].sort().join("_");
+      currentRoom = privateRoom;
+      chat.innerHTML = "";
+      roomName.innerText = `Room: Private with ${target}`;
+      socket.emit("joinRoom", { username, room: privateRoom });
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key.toLowerCase() === "c") {
+        currentRoom = "public";
+        chat.innerHTML = "";
+        roomName.innerText = "Room: public";
+        socket.emit("joinRoom", { username, room: "public" });
+      }
+    });
   </script>
 </body>
 </html>
