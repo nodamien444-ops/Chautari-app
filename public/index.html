@@ -117,9 +117,11 @@
 
     // Join a room
     function joinRoom(room) {
+      const usesr = username.value.trim() || "Anonymous";
       currentRoom = room;
       messagesList.innerHTML = '';
       socket.emit('joinRoom', { username: usernameInput.value || "Anonymous", room });
+      socket,username = user; // store it for later messages
     }
 
     // Handle room bubble clicks
@@ -171,8 +173,7 @@
     });
 
     async function sendMessage() {
-      const user = usernameInput.value || "Anonymous";
-      const text = messageInput.value;
+      const text = messageInput.value.trim();
       if(!text) return;
       socket.emit('chatMessage', { room: currentRoom, text });
       messageInput.value = '';
