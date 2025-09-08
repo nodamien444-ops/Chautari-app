@@ -860,7 +860,7 @@ function joinRoom(room) {
   
   // Update room title
   if (room === 'public') {
-    currentRoomTitle.textContent = 'General Chat';
+    currentRoomTitle.textContent = 'The Chautari';
   } else if (room.startsWith('private_')) {
     const users = room.replace('private_', '').split('_');
     const otherUser = users.find(user => user !== currentUser);
