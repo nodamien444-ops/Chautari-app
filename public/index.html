@@ -196,6 +196,605 @@ body {
   overflow: hidden;
 }
 
+/* Section Tabs */
+.section-tabs {
+  display: flex;
+  background-color: white;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 20px;
+}
+
+.section-tab {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  font-weight: 500;
+  color: var(--light-text);
+  gap: 8px;
+}
+
+.section-tab:hover {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.section-tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.section-tab svg {
+  opacity: 0.7;
+}
+
+.section-tab.active svg {
+  opacity: 1;
+}
+
+/* Section Content */
+.section-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Posts Styles */
+.posts-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #f9fbf4;
+}
+
+.create-post {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.post-input-area {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.post-text-input {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 15px;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+  min-height: 80px;
+  outline: none;
+}
+
+.post-text-input:focus {
+  border-color: var(--primary-color);
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.image-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: all 0.2s;
+}
+
+.image-upload-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.post-submit-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.post-submit-btn:hover {
+  background-color: #5a7248;
+}
+
+.post-submit-btn:disabled {
+  background-color: var(--light-text);
+  cursor: not-allowed;
+}
+
+.image-preview {
+  position: relative;
+  margin-top: 15px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+#previewImg {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  display: block;
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.remove-image-btn:hover {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+/* Threads Styles */
+.threads-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #f9fbf4;
+}
+
+.create-thread {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.thread-input-area {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.thread-title-input {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px 15px;
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+}
+
+.thread-title-input:focus {
+  border-color: var(--primary-color);
+}
+
+.thread-text-input {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 15px;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+  min-height: 100px;
+  outline: none;
+}
+
+.thread-text-input:focus {
+  border-color: var(--primary-color);
+}
+
+.thread-submit-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background-color 0.2s;
+}
+
+.thread-submit-btn:hover {
+  background-color: #5a7248;
+}
+
+.thread-submit-btn:disabled {
+  background-color: var(--light-text);
+  cursor: not-allowed;
+}
+
+/* Posts Styles */
+.post {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.post-info {
+  flex: 1;
+}
+
+.post-user {
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 2px;
+}
+
+.post-time {
+  font-size: 0.8rem;
+  color: var(--light-text);
+}
+
+.post-content {
+  margin-bottom: 15px;
+}
+
+.post-text {
+  line-height: 1.5;
+  margin-bottom: 10px;
+  white-space: pre-wrap;
+}
+
+.post-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.post-actions {
+  display: flex;
+  gap: 20px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.like-btn, .comment-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--light-text);
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.like-btn:hover, .comment-btn:hover {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.like-btn.liked {
+  color: #e74c3c;
+}
+
+.like-btn.liked svg {
+  fill: #e74c3c;
+  stroke: #e74c3c;
+}
+
+/* Comments Styles */
+.comments-section {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color);
+}
+
+.comments-list {
+  margin-bottom: 15px;
+}
+
+.comment {
+  display: flex;
+  margin-bottom: 12px;
+  padding: 10px;
+  background-color: var(--background-color);
+  border-radius: 8px;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  margin-right: 10px;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+}
+
+.comment-content {
+  flex: 1;
+}
+
+.comment-user {
+  font-weight: bold;
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+
+.comment-text {
+  line-height: 1.4;
+  margin-bottom: 3px;
+}
+
+.comment-time {
+  font-size: 0.7rem;
+  color: var(--light-text);
+}
+
+.comment-input {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.comment-input-field {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.comment-input-field:focus {
+  border-color: var(--primary-color);
+}
+
+.comment-submit-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.comment-submit-btn:hover {
+  background-color: #5a7248;
+}
+
+/* Threads Styles */
+.thread {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.thread-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.thread-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.thread-info {
+  flex: 1;
+}
+
+.thread-user {
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 2px;
+}
+
+.thread-time {
+  font-size: 0.8rem;
+  color: var(--light-text);
+}
+
+.thread-content {
+  margin-bottom: 15px;
+}
+
+.thread-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.thread-text {
+  line-height: 1.5;
+  color: var(--text-color);
+  white-space: pre-wrap;
+}
+
+.thread-actions {
+  display: flex;
+  gap: 20px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.comment-thread-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--light-text);
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.comment-thread-btn:hover {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Thread Comments Styles */
+.thread-comments-section {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color);
+}
+
+.thread-comments-list {
+  margin-bottom: 15px;
+}
+
+.thread-comment {
+  display: flex;
+  margin-bottom: 12px;
+  padding: 10px;
+  background-color: var(--background-color);
+  border-radius: 8px;
+}
+
+.thread-comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  margin-right: 10px;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+}
+
+.thread-comment-content {
+  flex: 1;
+}
+
+.thread-comment-user {
+  font-weight: bold;
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+
+.thread-comment-text {
+  line-height: 1.4;
+  margin-bottom: 3px;
+}
+
+.thread-comment-time {
+  font-size: 0.7rem;
+  color: var(--light-text);
+}
+
+.thread-comment-input {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.thread-comment-input-field {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.thread-comment-input-field:focus {
+  border-color: var(--primary-color);
+}
+
+.thread-comment-submit-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.thread-comment-submit-btn:hover {
+  background-color: #5a7248;
+}
+
 .chat-header {
   padding: 15px 20px;
   background-color: white;
@@ -352,6 +951,59 @@ body {
 .send-button:disabled {
   background-color: var(--light-text);
   cursor: not-allowed;
+}
+
+/* Welcome Screen */
+.welcome-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.welcome-content {
+  text-align: center;
+  color: white;
+  max-width: 500px;
+  padding: 40px;
+}
+
+.welcome-title {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 40px;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+.welcome-button {
+  background-color: white;
+  color: var(--primary-color);
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.welcome-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Login Modal */
@@ -520,37 +1172,115 @@ body {
   <div class="chat-area">
     <div class="chat-header">
       <div>
-        <div class="room-title" id="currentRoomTitle">The Chautrai</div>
+        <div class="room-title" id="currentRoomTitle">Chautari</div>
         <div class="room-info" id="roomInfo">0 users online</div>
       </div>
     </div>
-    
-    <div class="messages-container" id="messagesContainer">
-      <div class="message system">
-        <div class="message-content">
-          Welcome to Chautari! Start chatting now.
-        </div>
-      </div>
-      <!-- Messages will be added dynamically -->
-      
-      <div class="new-message-notice" id="newMessageNotice">New messages below!</div>
-    </div>
-    
-    <div class="input-area">
-      <span class="character-count" id="characterCount">0/500</span>
-      <textarea class="message-input" id="messageInput" placeholder="Type a message..." disabled></textarea>
-      <button class="send-button" id="sendButton" disabled>
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+
+    <!-- Section Tabs -->
+    <div class="section-tabs">
+      <div class="section-tab active" data-section="posts">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="9" cy="9" r="2"></circle>
+          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
         </svg>
-      </button>
+        Posts
+      </div>
+      <div class="section-tab" data-section="threads">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        Threads
+      </div>
+      <div class="section-tab" data-section="chat">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path>
+        </svg>
+        Public Chat
+      </div>
+    </div>
+
+    <!-- Posts Section -->
+    <div class="section-content" id="postsSection">
+      <div class="posts-container" id="postsContainer">
+        <div class="create-post">
+          <div class="post-input-area">
+            <textarea class="post-text-input" id="postTextInput" placeholder="Share something..." disabled></textarea>
+            <div class="post-actions">
+              <input type="file" id="imageInput" accept="image/*" style="display: none;">
+              <button class="image-upload-btn" id="imageUploadBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="9" cy="9" r="2"></circle>
+                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                </svg>
+                Image
+              </button>
+              <button class="post-submit-btn" id="postSubmitBtn" disabled>Post</button>
+            </div>
+            <div class="image-preview" id="imagePreview" style="display: none;">
+              <img id="previewImg" src="" alt="Preview">
+              <button class="remove-image-btn" id="removeImageBtn">×</button>
+            </div>
+          </div>
+        </div>
+        <!-- Posts will be added dynamically -->
+      </div>
+    </div>
+
+    <!-- Threads Section -->
+    <div class="section-content" id="threadsSection" style="display: none;">
+      <div class="threads-container" id="threadsContainer">
+        <div class="create-thread">
+          <div class="thread-input-area">
+            <input type="text" class="thread-title-input" id="threadTitleInput" placeholder="Thread title..." disabled>
+            <textarea class="thread-text-input" id="threadTextInput" placeholder="Start a discussion..." disabled></textarea>
+            <button class="thread-submit-btn" id="threadSubmitBtn" disabled>Create Thread</button>
+          </div>
+        </div>
+        <!-- Threads will be added dynamically -->
+      </div>
+    </div>
+
+    <!-- Public Chat Section -->
+    <div class="section-content" id="chatSection" style="display: none;">
+      <div class="messages-container" id="messagesContainer">
+        <div class="message system">
+          <div class="message-content">
+            Welcome to Chautari Public Chat! Start chatting now.
+          </div>
+        </div>
+        <!-- Messages will be added dynamically -->
+
+        <div class="new-message-notice" id="newMessageNotice">New messages below!</div>
+      </div>
+
+      <div class="input-area">
+        <span class="character-count" id="characterCount">0/500</span>
+        <textarea class="message-input" id="messageInput" placeholder="Type a message..." disabled></textarea>
+        <button class="send-button" id="sendButton" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Welcome Screen -->
+<div class="welcome-screen" id="welcomeScreen">
+  <div class="welcome-content">
+    <h1 class="welcome-title">Welcome to Chautari</h1>
+    <p class="welcome-subtitle">Connect, share, and discuss with people around the world</p>
+    <button class="welcome-button" id="enterButton">Enter Chautari</button>
+  </div>
+</div>
+
 <!-- Login Modal -->
-<div class="login-modal" id="loginModal">
+<div class="login-modal" id="loginModal" style="display: none;">
   <div class="modal-content">
     <h2 class="modal-title">Join Chautari</h2>
     <input type="text" class="login-input" id="loginUsername" placeholder="Enter your name" autocomplete="off">
@@ -575,6 +1305,22 @@ const loginUsername = document.getElementById('loginUsername');
 const loginButton = document.getElementById('loginButton');
 const newMessageNotice = document.getElementById('newMessageNotice');
 const characterCount = document.getElementById('characterCount');
+const welcomeScreen = document.getElementById('welcomeScreen');
+const enterButton = document.getElementById('enterButton');
+const sectionTabs = document.querySelectorAll('.section-tab');
+const postsSection = document.getElementById('postsSection');
+const threadsSection = document.getElementById('threadsSection');
+const chatSection = document.getElementById('chatSection');
+const postTextInput = document.getElementById('postTextInput');
+const imageUploadBtn = document.getElementById('imageUploadBtn');
+const postSubmitBtn = document.getElementById('postSubmitBtn');
+const threadTitleInput = document.getElementById('threadTitleInput');
+const threadTextInput = document.getElementById('threadTextInput');
+const threadSubmitBtn = document.getElementById('threadSubmitBtn');
+const imageInput = document.getElementById('imageInput');
+const imagePreview = document.getElementById('imagePreview');
+const previewImg = document.getElementById('previewImg');
+const removeImageBtn = document.getElementById('removeImageBtn');
 
 // App State
 let currentUser = '';
@@ -584,15 +1330,33 @@ let userColors = {};
 let roomNotifications = {};
 let atBottom = true;
 let chatHistory = {}; // Store chat history for each room
+let selectedImage = null; // Store selected image file
 
 // Initialize the app
 function initApp() {
   // Set up event listeners
+  enterButton.addEventListener('click', showLoginModal);
   loginButton.addEventListener('click', handleLogin);
   loginUsername.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleLogin();
   });
-  
+
+  // Section tab event listeners
+  sectionTabs.forEach(tab => {
+    tab.addEventListener('click', () => switchSection(tab.dataset.section));
+  });
+
+  // Image upload event listeners
+  imageUploadBtn.addEventListener('click', () => imageInput.click());
+  imageInput.addEventListener('change', handleImageSelect);
+  removeImageBtn.addEventListener('click', removeImage);
+
+  // Post submission event listener
+  postSubmitBtn.addEventListener('click', createPost);
+
+  // Thread submission event listener
+  threadSubmitBtn.addEventListener('click', createThread);
+
   sendButton.addEventListener('click', sendMessage);
   messageInput.addEventListener('input', updateCharacterCount);
   messageInput.addEventListener('keypress', (e) => {
@@ -601,10 +1365,10 @@ function initApp() {
       sendMessage();
     }
   });
-  
+
   messagesContainer.addEventListener('scroll', handleScroll);
   newMessageNotice.addEventListener('click', scrollToBottom);
-  
+
   // Initialize room notifications and chat history
   roomNotifications['public'] = 0;
   chatHistory['public'] = [];
@@ -623,6 +1387,375 @@ function updateCharacterCount() {
   
   // Enable/disable send button based on message length
   sendButton.disabled = length === 0 || length > 500;
+}
+
+// Show login modal
+function showLoginModal() {
+  welcomeScreen.style.display = 'none';
+  loginModal.style.display = 'flex';
+  loginUsername.focus();
+}
+
+// Switch between sections
+function switchSection(sectionName) {
+  // Update tab active states
+  sectionTabs.forEach(tab => {
+    tab.classList.remove('active');
+  });
+  document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+
+  // Hide all sections
+  postsSection.style.display = 'none';
+  threadsSection.style.display = 'none';
+  chatSection.style.display = 'none';
+
+  // Show selected section
+  if (sectionName === 'posts') {
+    postsSection.style.display = 'flex';
+  } else if (sectionName === 'threads') {
+    threadsSection.style.display = 'flex';
+  } else if (sectionName === 'chat') {
+    chatSection.style.display = 'flex';
+  }
+}
+
+// Handle image selection
+function handleImageSelect(event) {
+  const file = event.target.files[0];
+  if (file && file.type.startsWith('image/')) {
+    selectedImage = file;
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImg.src = e.target.result;
+      imagePreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// Remove selected image
+function removeImage() {
+  selectedImage = null;
+  imageInput.value = '';
+  imagePreview.style.display = 'none';
+  previewImg.src = '';
+}
+
+// Create a new post
+function createPost() {
+  const text = postTextInput.value.trim();
+  if (!text && !selectedImage) return;
+
+  let imageData = null;
+  if (selectedImage) {
+    // Convert image to base64 for storage
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imageData = e.target.result;
+      socket.emit('createPost', { text, image: imageData });
+      clearPostForm();
+    };
+    reader.readAsDataURL(selectedImage);
+  } else {
+    socket.emit('createPost', { text, image: null });
+    clearPostForm();
+  }
+}
+
+// Clear post form
+function clearPostForm() {
+  postTextInput.value = '';
+  removeImage();
+}
+
+// Display posts in the feed
+function displayPosts(posts) {
+  const postsContainer = document.getElementById('postsContainer');
+
+  // Clear existing posts but keep the create post section
+  const createPostSection = postsContainer.querySelector('.create-post');
+  postsContainer.innerHTML = '';
+  postsContainer.appendChild(createPostSection);
+
+  // Add posts
+  posts.forEach(post => {
+    addPostToFeed(post);
+  });
+}
+
+// Add a post to the feed
+function addPostToFeed(post) {
+  const postsContainer = document.getElementById('postsContainer');
+  const createPostSection = postsContainer.querySelector('.create-post');
+  const postEl = document.createElement('div');
+  postEl.className = 'post';
+  postEl.dataset.postId = post.id;
+
+  const timestamp = new Date(post.timestamp).toLocaleString();
+  const isLiked = post.likes.includes(currentUser);
+
+  postEl.innerHTML = `
+    <div class="post-header">
+      <div class="post-avatar" style="background-color: ${userColors[post.user] || '#749157'}">${post.user.charAt(0).toUpperCase()}</div>
+      <div class="post-info">
+        <div class="post-user">${post.user}</div>
+        <div class="post-time">${timestamp}</div>
+      </div>
+    </div>
+    <div class="post-content">
+      ${post.text ? `<div class="post-text">${post.text}</div>` : ''}
+      ${post.image ? `<img class="post-image" src="${post.image}" alt="Post image">` : ''}
+    </div>
+    <div class="post-actions">
+      <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="likePost(${post.id})">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+        ${post.likes.length}
+      </button>
+      <button class="comment-btn" onclick="toggleComments(${post.id})">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path>
+        </svg>
+        ${post.comments.length}
+      </button>
+    </div>
+    <div class="comments-section" id="comments-${post.id}" style="display: none;">
+      <div class="comments-list" id="comments-list-${post.id}">
+        ${post.comments.map(comment => `
+          <div class="comment">
+            <div class="comment-avatar" style="background-color: ${userColors[comment.user] || '#749157'}">${comment.user.charAt(0).toUpperCase()}</div>
+            <div class="comment-content">
+              <div class="comment-user">${comment.user}</div>
+              <div class="comment-text">${comment.text}</div>
+              <div class="comment-time">${new Date(comment.timestamp).toLocaleString()}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="comment-input">
+        <input type="text" class="comment-input-field" id="comment-input-${post.id}" placeholder="Write a comment..." onkeypress="handleCommentKeypress(event, ${post.id})">
+        <button class="comment-submit-btn" onclick="addComment(${post.id})">Post</button>
+      </div>
+    </div>
+  `;
+
+  // Insert after the create post section
+  if (createPostSection.nextSibling) {
+    postsContainer.insertBefore(postEl, createPostSection.nextSibling);
+  } else {
+    postsContainer.appendChild(postEl);
+  }
+}
+
+// Update a post in the feed
+function updatePostInFeed(updatedPost) {
+  const postEl = document.querySelector(`[data-post-id="${updatedPost.id}"]`);
+  if (postEl) {
+    const likeBtn = postEl.querySelector('.like-btn');
+    const isLiked = updatedPost.likes.includes(currentUser);
+    likeBtn.classList.toggle('liked', isLiked);
+    likeBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+      </svg>
+      ${updatedPost.likes.length}
+    `;
+
+    const commentBtn = postEl.querySelector('.comment-btn');
+    commentBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path>
+      </svg>
+      ${updatedPost.comments.length}
+    `;
+
+    // Update comments if visible
+    const commentsList = postEl.querySelector(`#comments-list-${updatedPost.id}`);
+    if (commentsList) {
+      commentsList.innerHTML = updatedPost.comments.map(comment => `
+        <div class="comment">
+          <div class="comment-avatar" style="background-color: ${userColors[comment.user] || '#749157'}">${comment.user.charAt(0).toUpperCase()}</div>
+          <div class="comment-content">
+            <div class="comment-user">${comment.user}</div>
+            <div class="comment-text">${comment.text}</div>
+            <div class="comment-time">${new Date(comment.timestamp).toLocaleString()}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+// Like a post
+function likePost(postId) {
+  socket.emit('likePost', { postId });
+}
+
+// Toggle comments visibility
+function toggleComments(postId) {
+  const commentsSection = document.getElementById(`comments-${postId}`);
+  commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
+}
+
+// Handle comment keypress
+function handleCommentKeypress(event, postId) {
+  if (event.key === 'Enter') {
+    addComment(postId);
+  }
+}
+
+// Add a comment to a post
+function addComment(postId) {
+  const input = document.getElementById(`comment-input-${postId}`);
+  const text = input.value.trim();
+  if (!text) return;
+
+  socket.emit('commentPost', { postId, text });
+  input.value = '';
+}
+
+// Create a new thread
+function createThread() {
+  const title = threadTitleInput.value.trim();
+  const text = threadTextInput.value.trim();
+  if (!title || !text) return;
+
+  socket.emit('createThread', { title, text });
+  clearThreadForm();
+}
+
+// Clear thread form
+function clearThreadForm() {
+  threadTitleInput.value = '';
+  threadTextInput.value = '';
+}
+
+// Display threads in the feed
+function displayThreads(threads) {
+  const threadsContainer = document.getElementById('threadsContainer');
+
+  // Clear existing threads but keep the create thread section
+  const createThreadSection = threadsContainer.querySelector('.create-thread');
+  threadsContainer.innerHTML = '';
+  threadsContainer.appendChild(createThreadSection);
+
+  // Add threads
+  threads.forEach(thread => {
+    addThreadToFeed(thread);
+  });
+}
+
+// Add a thread to the feed
+function addThreadToFeed(thread) {
+  const threadsContainer = document.getElementById('threadsContainer');
+  const createThreadSection = threadsContainer.querySelector('.create-thread');
+  const threadEl = document.createElement('div');
+  threadEl.className = 'thread';
+  threadEl.dataset.threadId = thread.id;
+
+  const timestamp = new Date(thread.timestamp).toLocaleString();
+
+  threadEl.innerHTML = `
+    <div class="thread-header">
+      <div class="thread-avatar" style="background-color: ${userColors[thread.user] || '#749157'}">${thread.user.charAt(0).toUpperCase()}</div>
+      <div class="thread-info">
+        <div class="thread-user">${thread.user}</div>
+        <div class="thread-time">${timestamp}</div>
+      </div>
+    </div>
+    <div class="thread-content">
+      <div class="thread-title">${thread.title}</div>
+      <div class="thread-text">${thread.text}</div>
+    </div>
+    <div class="thread-actions">
+      <button class="comment-thread-btn" onclick="toggleThreadComments(${thread.id})">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path>
+        </svg>
+        ${thread.comments.length} Comments
+      </button>
+    </div>
+    <div class="thread-comments-section" id="thread-comments-${thread.id}" style="display: none;">
+      <div class="thread-comments-list" id="thread-comments-list-${thread.id}">
+        ${thread.comments.map(comment => `
+          <div class="thread-comment">
+            <div class="thread-comment-avatar" style="background-color: ${userColors[comment.user] || '#749157'}">${comment.user.charAt(0).toUpperCase()}</div>
+            <div class="thread-comment-content">
+              <div class="thread-comment-user">${comment.user}</div>
+              <div class="thread-comment-text">${comment.text}</div>
+              <div class="thread-comment-time">${new Date(comment.timestamp).toLocaleString()}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="thread-comment-input">
+        <input type="text" class="thread-comment-input-field" id="thread-comment-input-${thread.id}" placeholder="Add to the discussion..." onkeypress="handleThreadCommentKeypress(event, ${thread.id})">
+        <button class="thread-comment-submit-btn" onclick="addThreadComment(${thread.id})">Post</button>
+      </div>
+    </div>
+  `;
+
+  // Insert after the create thread section
+  if (createThreadSection.nextSibling) {
+    threadsContainer.insertBefore(threadEl, createThreadSection.nextSibling);
+  } else {
+    threadsContainer.appendChild(threadEl);
+  }
+}
+
+// Update a thread in the feed
+function updateThreadInFeed(updatedThread) {
+  const threadEl = document.querySelector(`[data-thread-id="${updatedThread.id}"]`);
+  if (threadEl) {
+    const commentBtn = threadEl.querySelector('.comment-thread-btn');
+    commentBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path>
+      </svg>
+      ${updatedThread.comments.length} Comments
+    `;
+
+    // Update comments if visible
+    const commentsList = threadEl.querySelector(`#thread-comments-list-${updatedThread.id}`);
+    if (commentsList) {
+      commentsList.innerHTML = updatedThread.comments.map(comment => `
+        <div class="thread-comment">
+          <div class="thread-comment-avatar" style="background-color: ${userColors[comment.user] || '#749157'}">${comment.user.charAt(0).toUpperCase()}</div>
+          <div class="thread-comment-content">
+            <div class="thread-comment-user">${comment.user}</div>
+            <div class="thread-comment-text">${comment.text}</div>
+            <div class="thread-comment-time">${new Date(comment.timestamp).toLocaleString()}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+// Toggle thread comments visibility
+function toggleThreadComments(threadId) {
+  const commentsSection = document.getElementById(`thread-comments-${threadId}`);
+  commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
+}
+
+// Handle thread comment keypress
+function handleThreadCommentKeypress(event, threadId) {
+  if (event.key === 'Enter') {
+    addThreadComment(threadId);
+  }
+}
+
+// Add a comment to a thread
+function addThreadComment(threadId) {
+  const input = document.getElementById(`thread-comment-input-${threadId}`);
+  const text = input.value.trim();
+  if (!text) return;
+
+  socket.emit('commentThread', { threadId, text });
+  input.value = '';
 }
 
 // Handle user login
@@ -676,7 +1809,7 @@ function handleLogin() {
   socket.on('chatHistory', (data) => {
     // Store the chat history for this room
     chatHistory[data.room] = data.messages;
-    
+
     // If this is the current room, display the history
     if (data.room === currentRoom) {
       messagesContainer.innerHTML = '';
@@ -686,11 +1819,49 @@ function handleLogin() {
       scrollToBottom();
     }
   });
+
+  // Posts event listeners
+  socket.on('newPost', (post) => {
+    addPostToFeed(post);
+  });
+
+  socket.on('updatePost', (post) => {
+    updatePostInFeed(post);
+  });
+
+  socket.on('postsData', (postsData) => {
+    displayPosts(postsData);
+  });
+
+  // Get initial posts data
+  socket.emit('getPosts');
+
+  // Threads event listeners
+  socket.on('newThread', (thread) => {
+    addThreadToFeed(thread);
+  });
+
+  socket.on('updateThread', (thread) => {
+    updateThreadInFeed(thread);
+  });
+
+  socket.on('threadsData', (threadsData) => {
+    displayThreads(threadsData);
+  });
+
+  // Get initial threads data
+  socket.emit('getThreads');
   
-  // Hide login modal and enable input
+  // Hide login modal and enable inputs
   loginModal.style.display = 'none';
   messageInput.disabled = false;
-  
+  postTextInput.disabled = false;
+  imageUploadBtn.disabled = false;
+  postSubmitBtn.disabled = false;
+  threadTitleInput.disabled = false;
+  threadTextInput.disabled = false;
+  threadSubmitBtn.disabled = false;
+
   // Focus on message input
   messageInput.focus();
 }
@@ -860,7 +2031,7 @@ function joinRoom(room) {
   
   // Update room title
   if (room === 'public') {
-    currentRoomTitle.textContent = 'The Chautari';
+    currentRoomTitle.textContent = 'Chautari';
   } else if (room.startsWith('private_')) {
     const users = room.replace('private_', '').split('_');
     const otherUser = users.find(user => user !== currentUser);
