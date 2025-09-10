@@ -1171,6 +1171,13 @@ function displayPosts(posts) {
   posts.forEach(post => {
     addPostToFeed(post);
   });
+
+  // Ensure posts section is visible if posts tab is active
+  const activeTab = document.querySelector('.section-tab.active');
+  if (activeTab && activeTab.dataset.section === 'posts') {
+    postsSection.style.display = 'flex';
+    chatSection.style.display = 'none';
+  }
 }
 
 // Add a post to the feed
@@ -1228,6 +1235,13 @@ function addPostToFeed(post) {
     postsContainer.insertBefore(postEl, createPostSection.nextSibling);
   } else {
     postsContainer.appendChild(postEl);
+  }
+
+  // Ensure posts section is visible if posts tab is active
+  const activeTab = document.querySelector('.section-tab.active');
+  if (activeTab && activeTab.dataset.section === 'posts') {
+    postsSection.style.display = 'flex';
+    chatSection.style.display = 'none';
   }
 }
 
@@ -1355,6 +1369,12 @@ function handleLogin() {
   // Posts event listeners
   socket.on('newPost', (post) => {
     addPostToFeed(post);
+    // Ensure posts section is visible when new post is added
+    const activeTab = document.querySelector('.section-tab.active');
+    if (activeTab && activeTab.dataset.section === 'posts') {
+      postsSection.style.display = 'flex';
+      chatSection.style.display = 'none';
+    }
   });
 
   socket.on('updatePost', (post) => {
@@ -1363,6 +1383,12 @@ function handleLogin() {
 
   socket.on('postsData', (postsData) => {
     displayPosts(postsData);
+    // Ensure posts section is visible for new users
+    const activeTab = document.querySelector('.section-tab.active');
+    if (activeTab && activeTab.dataset.section === 'posts') {
+      postsSection.style.display = 'flex';
+      chatSection.style.display = 'none';
+    }
   });
 
   // Get initial posts data
