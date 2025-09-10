@@ -732,7 +732,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -741,43 +741,71 @@ body {
 
 .modal-content {
   background-color: white;
-  padding: 30px;
-  border-radius: 10px;
+  padding: 40px;
+  border-radius: 15px;
   width: 90%;
-  max-width: 400px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  max-width: 450px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  text-align: center;
 }
 
 .modal-title {
-  margin-bottom: 20px;
-  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
   color: var(--primary-color);
+  font-weight: bold;
+}
+
+.login-subtitle {
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+  color: #666;
 }
 
 .login-input {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
   font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.login-input:focus {
+  border-color: var(--primary-color);
 }
 
 .login-button {
   width: 100%;
-  padding: 12px;
-  background-color: var(--primary-color);
+  padding: 15px;
+  background: linear-gradient(135deg, var(--primary-color), #5a7248);
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   font-family: inherit;
   font-weight: bold;
-  transition: background-color 0.2s;
+  font-size: 1.1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .login-button:hover {
-  background-color: #5a7248;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.beta-notice {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #856404;
+  line-height: 1.4;
 }
 
 /* Responsive Design */
@@ -1017,9 +1045,13 @@ body {
 <!-- Login Modal -->
 <div class="login-modal" id="loginModal" style="display: none;">
   <div class="modal-content">
-    <h2 class="modal-title">Join Chautari</h2>
-    <input type="text" class="login-input" id="loginUsername" placeholder="Enter your name" autocomplete="off">
+    <h2 class="modal-title">Welcome to Chautari</h2>
+    <p class="login-subtitle">Connect and chat with people around the world</p>
+    <input type="text" class="login-input" id="loginUsername" placeholder="Enter your name here" autocomplete="off">
     <button class="login-button" id="loginButton">Join Chat</button>
+    <div class="beta-notice">
+      <strong>🚧 Beta Notice:</strong> This app is still in development. Expect occasional server wipes and potential glitches as we improve the experience!
+    </div>
   </div>
 </div>
 
@@ -1355,13 +1387,16 @@ function handleLogin() {
       data.messages.forEach(msg => {
         addMessageToChat(msg);
       });
-      scrollToBottom();
 
-      // Ensure section tabs are visible for public room
-      const sectionTabs = document.querySelector('.section-tabs');
-      if (currentRoom === 'public') {
-        sectionTabs.style.display = 'flex';
-      }
+      // Scroll to bottom after a short delay to ensure all messages are rendered
+      setTimeout(() => {
+        scrollToBottom();
+        // Ensure section tabs are visible for public room
+        const sectionTabs = document.querySelector('.section-tabs');
+        if (currentRoom === 'public') {
+          sectionTabs.style.display = 'flex';
+        }
+      }, 100);
     }
   });
 
@@ -1593,15 +1628,17 @@ function joinRoom(room) {
     chatHistory[room].forEach(msg => {
       addMessageToChat(msg);
     });
+    // Scroll to bottom after a short delay to ensure all messages are rendered
+    setTimeout(scrollToBottom, 100);
   } else {
     // Add welcome message if no history
     const welcomeMsg = document.createElement('div');
     welcomeMsg.className = 'message system';
     welcomeMsg.innerHTML = '<div class="message-content">You joined the room</div>';
     messagesContainer.appendChild(welcomeMsg);
+    // Scroll to bottom after welcome message is added
+    setTimeout(scrollToBottom, 50);
   }
-
-  scrollToBottom();
 }
 
 // Create a private room
