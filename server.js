@@ -11,13 +11,10 @@ const activeUsers = new Map(); // socket.id -> {username, room}
 const roomUsers = new Map();   // room -> Set of usernames
 const chatHistory = new Map(); // room -> Array of messages
 
+
 // Store posts data
 const posts = []; // Array of post objects
 let postIdCounter = 1;
-
-// Store threads data
-const threads = []; // Array of thread objects
-let threadIdCounter = 1;
 
 // Serve all static files from "public" folder
 app.use(express.static("public"));
@@ -152,57 +149,36 @@ io.on("connection", (socket) => {
     });
   });
 
+
   // Handle creating a new post
   socket.on("createPost", (data) => {
-    const { text, image } = data;
+    const { title, text } = data;
     const username = socket.username;
-
-    if (!username || !text.trim()) return;
-
+  
+    if (!username || !title.trim() || !text.trim()) return;
+  
     const newPost = {
       id: postIdCounter++,
       user: username,
+      title: title.trim(),
       text: text.trim(),
-      image: image || null,
       timestamp: new Date().toISOString(),
-      likes: [],
       comments: []
     };
-
+  
     posts.unshift(newPost); // Add to beginning of array
-
+  
     // Broadcast new post to all connected users
     io.emit("newPost", newPost);
-  });
-
-  // Handle liking a post
-  socket.on("likePost", (data) => {
-    const { postId } = data;
-    const username = socket.username;
-
-    if (!username) return;
-
-    const post = posts.find(p => p.id === postId);
-    if (post) {
-      const likeIndex = post.likes.indexOf(username);
-      if (likeIndex === -1) {
-        post.likes.push(username);
-      } else {
-        post.likes.splice(likeIndex, 1);
-      }
-
-      // Broadcast updated post to all users
-      io.emit("updatePost", post);
-    }
   });
 
   // Handle adding a comment to a post
   socket.on("commentPost", (data) => {
     const { postId, text } = data;
     const username = socket.username;
-
+  
     if (!username || !text.trim()) return;
-
+  
     const post = posts.find(p => p.id === postId);
     if (post) {
       const newComment = {
@@ -211,9 +187,9 @@ io.on("connection", (socket) => {
         text: text.trim(),
         timestamp: new Date().toISOString()
       };
-
+  
       post.comments.push(newComment);
-
+  
       // Broadcast updated post to all users
       io.emit("updatePost", post);
     }
@@ -222,56 +198,6 @@ io.on("connection", (socket) => {
   // Send current posts to newly connected user
   socket.on("getPosts", () => {
     socket.emit("postsData", posts);
-  });
-
-  // Handle creating a new thread
-  socket.on("createThread", (data) => {
-    const { title, text } = data;
-    const username = socket.username;
-
-    if (!username || !title.trim() || !text.trim()) return;
-
-    const newThread = {
-      id: threadIdCounter++,
-      user: username,
-      title: title.trim(),
-      text: text.trim(),
-      timestamp: new Date().toISOString(),
-      comments: []
-    };
-
-    threads.unshift(newThread); // Add to beginning of array
-
-    // Broadcast new thread to all connected users
-    io.emit("newThread", newThread);
-  });
-
-  // Handle adding a comment to a thread
-  socket.on("commentThread", (data) => {
-    const { threadId, text } = data;
-    const username = socket.username;
-
-    if (!username || !text.trim()) return;
-
-    const thread = threads.find(t => t.id === threadId);
-    if (thread) {
-      const newComment = {
-        id: Date.now(),
-        user: username,
-        text: text.trim(),
-        timestamp: new Date().toISOString()
-      };
-
-      thread.comments.push(newComment);
-
-      // Broadcast updated thread to all users
-      io.emit("updateThread", thread);
-    }
-  });
-
-  // Send current threads to newly connected user
-  socket.on("getThreads", () => {
-    socket.emit("threadsData", threads);
   });
 
   socket.on("disconnect", () => {
