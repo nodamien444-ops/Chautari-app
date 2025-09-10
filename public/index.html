@@ -732,7 +732,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eea 0%, #6dc7bc 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1038,15 +1038,6 @@ body {
   <div class="welcome-content">
     <h1 class="welcome-title">Welcome to Chautari</h1>
     <p class="welcome-subtitle">Connect, share, and discuss with people around the world</p>
-    <button class="welcome-button" id="enterButton">Enter Chautari</button>
-  </div>
-</div>
-
-<!-- Login Modal -->
-<div class="login-modal" id="loginModal" style="display: none;">
-  <div class="modal-content">
-    <h2 class="modal-title">Welcome to Chautari</h2>
-    <p class="login-subtitle">Connect and chat with people around the world</p>
     <input type="text" class="login-input" id="loginUsername" placeholder="Enter your name here" autocomplete="off">
     <button class="login-button" id="loginButton">Join Chat</button>
     <div class="beta-notice">
@@ -1054,6 +1045,7 @@ body {
     </div>
   </div>
 </div>
+
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -1067,13 +1059,11 @@ const currentRoomTitle = document.getElementById('currentRoomTitle');
 const roomInfo = document.getElementById('roomInfo');
 const userAvatar = document.getElementById('userAvatar');
 const sidebarUserName = document.getElementById('sidebarUserName');
-const loginModal = document.getElementById('loginModal');
 const loginUsername = document.getElementById('loginUsername');
 const loginButton = document.getElementById('loginButton');
 const newMessageNotice = document.getElementById('newMessageNotice');
 const characterCount = document.getElementById('characterCount');
 const welcomeScreen = document.getElementById('welcomeScreen');
-const enterButton = document.getElementById('enterButton');
 const sectionTabs = document.querySelectorAll('.section-tab');
 const postsSection = document.getElementById('postsSection');
 const chatSection = document.getElementById('chatSection');
@@ -1093,11 +1083,11 @@ let chatHistory = {}; // Store chat history for each room
 // Initialize the app
 function initApp() {
   // Set up event listeners
-  enterButton.addEventListener('click', showLoginModal);
   loginButton.addEventListener('click', handleLogin);
   loginUsername.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleLogin();
   });
+  loginUsername.focus();
 
   // Section tab event listeners
   sectionTabs.forEach(tab => {
@@ -1140,12 +1130,6 @@ function updateCharacterCount() {
   sendButton.disabled = length === 0 || length > 500;
 }
 
-// Show login modal
-function showLoginModal() {
-  welcomeScreen.style.display = 'none';
-  loginModal.style.display = 'flex';
-  loginUsername.focus();
-}
 
 // Switch between sections
 function switchSection(sectionName) {
@@ -1428,9 +1412,9 @@ function handleLogin() {
 
   // Get initial posts data
   socket.emit('getPosts');
-  
-  // Hide login modal and enable inputs
-  loginModal.style.display = 'none';
+
+  // Hide welcome screen and enable inputs
+  welcomeScreen.style.display = 'none';
   messageInput.disabled = false;
   postTitleInput.disabled = false;
   postTextInput.disabled = false;
